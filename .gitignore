@@ -1,2 +1,3 @@
+# ignore some local files on Viewpoint machine
 connectTest.py
 __pycache__
