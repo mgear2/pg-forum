@@ -6,7 +6,7 @@ class Connector:
     def __init__(self):
         self.params = self.config()
 
-    def config(self, filename='app\database.ini', section='postgresql'):
+    def config(self, filename='app/database.ini', section='postgresql'):
         # create a ConfigParser instance
         parser = ConfigParser()
         # read config file
