@@ -24,7 +24,6 @@ class Connector:
             raise Exception('Section {0} not found in the {1} file'.format(self.section, self.filename))
 
     def connect(self):
-        # Connect to the PostgreSQL database server
         self.connection = None
         try:
             # connect to the PostgreSQL server
