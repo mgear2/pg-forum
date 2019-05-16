@@ -19,16 +19,14 @@ class Connector:
             print(error)
 
     def connect(self):
-        """ Connect to the PostgreSQL database server """
+        # Connect to the PostgreSQL database server
         self.connection = None
         try:
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
             self.connection = psycopg2.connect(**self.params)
-
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-        
         return self.connection
 
     def disconnect(self):
@@ -40,18 +38,17 @@ class Connector:
             print('Connection was already closed!')
 
     def config(self, filename='app\database.ini', section='postgresql'):
-        # create a parser
+        # create a ConfigParser instance
         parser = ConfigParser()
         # read config file
         parser.read(filename)
-    
-        # get section, default to postgresql
+        # if the file/section is found, parse the contents into a dictionary variable
         fileConfig = {}
         if parser.has_section(section):
             params = parser.items(section)
             for param in params:
+                # each line of the .ini file can be used as a key-value pair
                 fileConfig[param[0]] = param[1]
         else:
             raise Exception('Section {0} not found in the {1} file'.format(section, filename))
-    
         return fileConfig
