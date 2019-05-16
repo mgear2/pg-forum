@@ -1,16 +1,14 @@
-from connect import connect
-from disconnect import disconnect
-from cursor import cursor
+from connector import Connector
 
 if __name__ == '__main__':
+    connector = Connector()
 
-    connection = connect()
     userstring = ""
 
     while True:
-        userstring = input("Enter command: ")
-        if userstring == "exit":
+        userstring = input("Enter Command: ")
+        if userstring == "exit": 
             break
-        cursor(connection, userstring)
+        connector.operate(userstring)
 
-    disconnect(connection)
+    connector.disconnect()

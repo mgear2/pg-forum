@@ -1,7 +1,7 @@
 # pylint: disable=import-error
 from configparser import ConfigParser
  
-def config(filename='database.ini', section='postgresql'):
+def config(filename='app\database.ini', section='postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
