@@ -4,23 +4,24 @@ from configparser import ConfigParser
 
 class Connector: 
     def __init__(self):
-        self.params = self.config()
+        self.filename = 'app/database.ini'
+        self.section = 'postgresql'
+        self.config()
 
-    def config(self, filename='app/database.ini', section='postgresql'):
+    def config(self):
         # create a ConfigParser instance
         parser = ConfigParser()
         # read config file
-        parser.read(filename)
+        parser.read(self.filename)
         # if the file/section is found, parse the contents into a dictionary variable
-        fileConfig = {}
-        if parser.has_section(section):
+        self.params = {}
+        if parser.has_section(self.section):
             # each line of the .ini file can be used as a key-value pair
-            params = parser.items(section)
-            for param in params:
-                fileConfig[param[0]] = param[1]
+            pairs = parser.items(self.section)
+            for pair in pairs:
+                self.params[pair[0]] = pair[1]
         else:
-            raise Exception('Section {0} not found in the {1} file'.format(section, filename))
-        return fileConfig
+            raise Exception('Section {0} not found in the {1} file'.format(self.section, self.filename))
 
     def connect(self):
         # Connect to the PostgreSQL database server
