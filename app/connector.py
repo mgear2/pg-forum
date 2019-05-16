@@ -5,18 +5,22 @@ from configparser import ConfigParser
 class Connector: 
     def __init__(self):
         self.params = self.config()
-        self.connection = self.connect()
-        self.cursor = self.connection.cursor()
 
-    def operate(self, string):
-        try: 
-            self.cursor.execute(string)
-            print(string + ' returns:')
-            # display the results of the statement
-            returnval = self.cursor.fetchall()
-            print(returnval)
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+    def config(self, filename='app\database.ini', section='postgresql'):
+        # create a ConfigParser instance
+        parser = ConfigParser()
+        # read config file
+        parser.read(filename)
+        # if the file/section is found, parse the contents into a dictionary variable
+        fileConfig = {}
+        if parser.has_section(section):
+            # each line of the .ini file can be used as a key-value pair
+            params = parser.items(section)
+            for param in params:
+                fileConfig[param[0]] = param[1]
+        else:
+            raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+        return fileConfig
 
     def connect(self):
         # Connect to the PostgreSQL database server
@@ -27,7 +31,8 @@ class Connector:
             self.connection = psycopg2.connect(**self.params)
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-        return self.connection
+        # create a cursor instance to use for the duration of this connection
+        self.cursor = self.connection.cursor()
 
     def disconnect(self):
         self.cursor.close()
@@ -37,18 +42,13 @@ class Connector:
         else:
             print('Connection was already closed!')
 
-    def config(self, filename='app\database.ini', section='postgresql'):
-        # create a ConfigParser instance
-        parser = ConfigParser()
-        # read config file
-        parser.read(filename)
-        # if the file/section is found, parse the contents into a dictionary variable
-        fileConfig = {}
-        if parser.has_section(section):
-            params = parser.items(section)
-            for param in params:
-                # each line of the .ini file can be used as a key-value pair
-                fileConfig[param[0]] = param[1]
-        else:
-            raise Exception('Section {0} not found in the {1} file'.format(section, filename))
-        return fileConfig
+    def operate(self, string):
+        try: 
+            # attempt to execute user command
+            self.cursor.execute(string)
+            print(string + ' returns:')
+            # display the results of the statement
+            returnval = self.cursor.fetchall()
+            print(returnval)
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
