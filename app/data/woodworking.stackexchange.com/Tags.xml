@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tags>
+  <row Id="2" TagName="plane" Count="49" ExcerptPostId="523" WikiPostId="522" />
+  <row Id="3" TagName="sharpening" Count="54" ExcerptPostId="494" WikiPostId="493" />
+  <row Id="4" TagName="technique" Count="221" ExcerptPostId="491" WikiPostId="490" />
+  <row Id="5" TagName="circular-saw" Count="25" ExcerptPostId="512" WikiPostId="511" />
+  <row Id="6" TagName="veneer" Count="17" />
+  <row Id="8" TagName="tools" Count="81" ExcerptPostId="489" WikiPostId="488" />
+  <row Id="9" TagName="finishing" Count="336" ExcerptPostId="381" WikiPostId="380" />
+  <row Id="10" TagName="plywood" Count="100" ExcerptPostId="376" WikiPostId="375" />
+  <row Id="11" TagName="toy" Count="9" />
+  <row Id="12" TagName="finish" Count="6" ExcerptPostId="550" WikiPostId="549" />
+  <row Id="13" TagName="varnish" Count="24" ExcerptPostId="767" WikiPostId="766" />
+  <row Id="14" TagName="stain" Count="3" />
+  <row Id="15" TagName="lathe" Count="32" ExcerptPostId="544" WikiPostId="543" />
+  <row Id="16" TagName="green-wood" Count="34" ExcerptPostId="458" WikiPostId="457" />
+  <row Id="17" TagName="router" Count="93" ExcerptPostId="651" WikiPostId="650" />
+  <row Id="18" TagName="chisel" Count="26" ExcerptPostId="720" WikiPostId="719" />
+  <row Id="19" TagName="blade" Count="17" ExcerptPostId="983" WikiPostId="982" />
+  <row Id="20" TagName="sanding" Count="95" ExcerptPostId="455" WikiPostId="454" />
+  <row Id="21" TagName="kickback" Count="3" ExcerptPostId="5484" WikiPostId="5483" />
+  <row Id="22" TagName="safety" Count="106" ExcerptPostId="369" WikiPostId="368" />
+  <row Id="23" TagName="table-saw" Count="121" ExcerptPostId="496" WikiPostId="495" />
+  <row Id="24" TagName="staining" Count="121" ExcerptPostId="1883" WikiPostId="1882" />
+  <row Id="25" TagName="wood-movement" Count="48" ExcerptPostId="640" WikiPostId="639" />
+  <row Id="26" TagName="warp" Count="26" ExcerptPostId="529" WikiPostId="528" />
+  <row Id="27" TagName="panel" Count="8" />
+  <row Id="28" TagName="band-saw" Count="33" ExcerptPostId="546" WikiPostId="545" />
+  <row Id="30" TagName="hand-saw" Count="33" ExcerptPostId="556" WikiPostId="555" />
+  <row Id="31" TagName="jointer" Count="34" ExcerptPostId="510" WikiPostId="509" />
+  <row Id="32" TagName="joinery" Count="230" ExcerptPostId="372" WikiPostId="371" />
+  <row Id="34" TagName="cabinetry" Count="31" ExcerptPostId="989" WikiPostId="988" />
+  <row Id="35" TagName="storage" Count="21" ExcerptPostId="644" WikiPostId="643" />
+  <row Id="36" TagName="end-grain" Count="20" ExcerptPostId="580" WikiPostId="579" />
+  <row Id="37" TagName="water-protection" Count="25" ExcerptPostId="583" WikiPostId="582" />
+  <row Id="38" TagName="physical-protection" Count="9" ExcerptPostId="691" WikiPostId="690" />
+  <row Id="40" TagName="adhesives" Count="5" />
+  <row Id="41" TagName="gouge" Count="5" />
+  <row Id="42" TagName="sawdust" Count="27" ExcerptPostId="516" WikiPostId="515" />
+  <row Id="46" TagName="thickness-planer" Count="30" ExcerptPostId="724" WikiPostId="723" />
+  <row Id="48" TagName="oiling" Count="24" />
+  <row Id="50" TagName="refinishing" Count="39" ExcerptPostId="678" WikiPostId="677" />
+  <row Id="51" TagName="quarter-sawn" Count="4" ExcerptPostId="531" WikiPostId="530" />
+  <row Id="53" TagName="fasteners" Count="24" ExcerptPostId="576" WikiPostId="575" />
+  <row Id="54" TagName="screws" Count="54" ExcerptPostId="520" WikiPostId="519" />
+  <row Id="56" TagName="power-tools" Count="94" ExcerptPostId="527" WikiPostId="526" />
+  <row Id="57" TagName="drilling" Count="45" ExcerptPostId="460" WikiPostId="459" />
+  <row Id="58" TagName="hole-saw" Count="6" ExcerptPostId="5330" WikiPostId="5329" />
+  <row Id="59" TagName="furniture" Count="140" ExcerptPostId="968" WikiPostId="967" />
+  <row Id="60" TagName="pressure-treated" Count="17" ExcerptPostId="649" WikiPostId="648" />
+  <row Id="62" TagName="restoration" Count="14" ExcerptPostId="554" WikiPostId="553" />
+  <row Id="63" TagName="lumber" Count="42" ExcerptPostId="514" WikiPostId="513" />
+  <row Id="64" TagName="outdoor" Count="19" />
+  <row Id="65" TagName="hand-planing" Count="35" ExcerptPostId="578" WikiPostId="577" />
+  <row Id="68" TagName="wood-identification" Count="9" ExcerptPostId="548" WikiPostId="547" />
+  <row Id="70" TagName="foreign-object" Count="1" ExcerptPostId="696" WikiPostId="695" />
+  <row Id="71" TagName="nailing" Count="12" />
+  <row Id="72" TagName="strength" Count="45" ExcerptPostId="8260" WikiPostId="8259" />
+  <row Id="75" TagName="making-lumber" Count="15" ExcerptPostId="466" WikiPostId="465" />
+  <row Id="76" TagName="traditional-techniques" Count="36" ExcerptPostId="981" WikiPostId="980" />
+  <row Id="77" TagName="turning" Count="35" ExcerptPostId="378" WikiPostId="377" />
+  <row Id="78" TagName="bowl" Count="10" ExcerptPostId="374" WikiPostId="373" />
+  <row Id="79" TagName="hollowing" Count="4" />
+  <row Id="81" TagName="douglas-fir" Count="5" />
+  <row Id="83" TagName="weight-capacity" Count="14" />
+  <row Id="84" TagName="pallet" Count="11" ExcerptPostId="152" WikiPostId="151" />
+  <row Id="85" TagName="rust" Count="7" />
+  <row Id="86" TagName="kiln-dried-wood" Count="5" />
+  <row Id="88" TagName="pine" Count="28" ExcerptPostId="8263" WikiPostId="8262" />
+  <row Id="90" TagName="pneumatic-nailer" Count="4" />
+  <row Id="91" TagName="air-tools" Count="5" />
+  <row Id="93" TagName="trim" Count="13" ExcerptPostId="722" WikiPostId="721" />
+  <row Id="96" TagName="glue" Count="109" ExcerptPostId="552" WikiPostId="551" />
+  <row Id="97" TagName="dowel" Count="26" ExcerptPostId="3538" WikiPostId="3537" />
+  <row Id="98" TagName="animals" Count="2" />
+  <row Id="101" TagName="toxicity" Count="23" ExcerptPostId="219" WikiPostId="218" />
+  <row Id="102" TagName="noise" Count="3" />
+  <row Id="104" TagName="plugs" Count="3" />
+  <row Id="105" TagName="nails" Count="10" ExcerptPostId="3562" WikiPostId="3561" />
+  <row Id="106" TagName="natural-wood" Count="5" />
+  <row Id="107" TagName="framing" Count="10" ExcerptPostId="1953" WikiPostId="1952" />
+  <row Id="108" TagName="hand-tools" Count="131" ExcerptPostId="464" WikiPostId="463" />
+  <row Id="110" TagName="drawer" Count="7" />
+  <row Id="112" TagName="measurement" Count="27" ExcerptPostId="4261" WikiPostId="4260" />
+  <row Id="113" TagName="planning" Count="10" />
+  <row Id="117" TagName="dust-collection" Count="34" ExcerptPostId="586" WikiPostId="585" />
+  <row Id="118" TagName="bending" Count="11" />
+  <row Id="121" TagName="steam-bending" Count="9" ExcerptPostId="979" WikiPostId="978" />
+  <row Id="122" TagName="surface-preparation" Count="20" ExcerptPostId="987" WikiPostId="986" />
+  <row Id="123" TagName="paint" Count="43" ExcerptPostId="2764" WikiPostId="2763" />
+  <row Id="125" TagName="lathe-chuck" Count="7" />
+  <row Id="126" TagName="workbench" Count="44" ExcerptPostId="680" WikiPostId="679" />
+  <row Id="127" TagName="bench-dogs" Count="4" />
+  <row Id="128" TagName="saw-blade" Count="15" ExcerptPostId="5328" WikiPostId="5327" />
+  <row Id="131" TagName="chain-saw" Count="4" ExcerptPostId="5324" WikiPostId="5323" />
+  <row Id="132" TagName="miter-saw" Count="25" ExcerptPostId="749" WikiPostId="748" />
+  <row Id="134" TagName="drawer-construction" Count="9" />
+  <row Id="135" TagName="moisture" Count="17" />
+  <row Id="136" TagName="assembly" Count="13" ExcerptPostId="363" WikiPostId="362" />
+  <row Id="137" TagName="process" Count="4" ExcerptPostId="366" WikiPostId="365" />
+  <row Id="140" TagName="rift-sawn" Count="4" ExcerptPostId="2022" WikiPostId="2021" />
+  <row Id="142" TagName="radial-arm-saw" Count="3" ExcerptPostId="5326" WikiPostId="5325" />
+  <row Id="146" TagName="molding" Count="4" />
+  <row Id="148" TagName="mdf" Count="31" ExcerptPostId="954" WikiPostId="953" />
+  <row Id="149" TagName="carving" Count="24" />
+  <row Id="150" TagName="pyrography" Count="5" />
+  <row Id="151" TagName="drill-bits" Count="31" ExcerptPostId="718" WikiPostId="717" />
+  <row Id="152" TagName="reclaimed-wood" Count="12" />
+  <row Id="155" TagName="hardwood" Count="29" ExcerptPostId="653" WikiPostId="652" />
+  <row Id="156" TagName="router-bit" Count="48" ExcerptPostId="1885" WikiPostId="1884" />
+  <row Id="157" TagName="shop" Count="9" ExcerptPostId="747" WikiPostId="746" />
+  <row Id="159" TagName="durability" Count="9" />
+  <row Id="165" TagName="holes" Count="16" />
+  <row Id="167" TagName="bowing" Count="3" />
+  <row Id="168" TagName="materials" Count="11" />
+  <row Id="171" TagName="jig" Count="28" ExcerptPostId="993" WikiPostId="992" />
+  <row Id="172" TagName="tung-oil" Count="12" ExcerptPostId="693" WikiPostId="692" />
+  <row Id="173" TagName="wood-drying" Count="25" ExcerptPostId="684" WikiPostId="683" />
+  <row Id="175" TagName="milling" Count="22" ExcerptPostId="4283" WikiPostId="4282" />
+  <row Id="177" TagName="terminology" Count="28" ExcerptPostId="832" WikiPostId="831" />
+  <row Id="178" TagName="clamps" Count="24" ExcerptPostId="682" WikiPostId="681" />
+  <row Id="179" TagName="boat-building" Count="4" ExcerptPostId="985" WikiPostId="984" />
+  <row Id="180" TagName="mortise-and-tenon" Count="19" />
+  <row Id="181" TagName="dovetail" Count="14" ExcerptPostId="991" WikiPostId="990" />
+  <row Id="183" TagName="dado" Count="17" />
+  <row Id="184" TagName="router-table" Count="23" />
+  <row Id="186" TagName="insects" Count="4" />
+  <row Id="189" TagName="softwood" Count="10" />
+  <row Id="190" TagName="design" Count="115" ExcerptPostId="1036" WikiPostId="1035" />
+  <row Id="191" TagName="clean-up" Count="12" />
+  <row Id="195" TagName="boiled-linseed-oil" Count="12" />
+  <row Id="198" TagName="board-materials" Count="12" />
+  <row Id="201" TagName="wood-selection" Count="79" ExcerptPostId="948" WikiPostId="947" />
+  <row Id="202" TagName="wood-repair" Count="74" ExcerptPostId="971" WikiPostId="970" />
+  <row Id="203" TagName="tool-repair" Count="20" ExcerptPostId="977" WikiPostId="976" />
+  <row Id="204" TagName="tool-maintenance" Count="39" ExcerptPostId="966" WikiPostId="965" />
+  <row Id="205" TagName="coloring" Count="7" />
+  <row Id="206" TagName="burning" Count="5" ExcerptPostId="2024" WikiPostId="2023" />
+  <row Id="207" TagName="drawing" Count="3" />
+  <row Id="212" TagName="tool-modification" Count="3" />
+  <row Id="213" TagName="rip-cut" Count="9" />
+  <row Id="214" TagName="tack-cloth" Count="2" />
+  <row Id="217" TagName="cabinet-scraper" Count="6" ExcerptPostId="7946" WikiPostId="7945" />
+  <row Id="219" TagName="electrical-requirements" Count="4" />
+  <row Id="220" TagName="door" Count="21" />
+  <row Id="221" TagName="tool-identification" Count="35" ExcerptPostId="2140" WikiPostId="2139" />
+  <row Id="224" TagName="box-joint" Count="12" />
+  <row Id="225" TagName="community-project" Count="4" />
+  <row Id="226" TagName="stability" Count="15" ExcerptPostId="3540" WikiPostId="3539" />
+  <row Id="227" TagName="zero-clearance-insert" Count="2" />
+  <row Id="228" TagName="tolerance" Count="14" ExcerptPostId="1296" WikiPostId="1295" />
+  <row Id="231" TagName="riving-knife" Count="2" ExcerptPostId="5487" WikiPostId="5486" />
+  <row Id="232" TagName="hardware-identification" Count="9" />
+  <row Id="235" TagName="cutting" Count="64" ExcerptPostId="8252" WikiPostId="8251" />
+  <row Id="236" TagName="miter-joint" Count="14" />
+  <row Id="239" TagName="hinges" Count="22" />
+  <row Id="243" TagName="inlay" Count="8" />
+  <row Id="244" TagName="tool-selection" Count="79" ExcerptPostId="2515" WikiPostId="2514" />
+  <row Id="246" TagName="wood" Count="201" ExcerptPostId="1807" WikiPostId="1806" />
+  <row Id="247" TagName="wood-species" Count="6" />
+  <row Id="248" TagName="finish-selection" Count="64" ExcerptPostId="1881" WikiPostId="1880" />
+  <row Id="249" TagName="boxes" Count="20" ExcerptPostId="1913" WikiPostId="1912" />
+  <row Id="250" TagName="handle" Count="10" />
+  <row Id="252" TagName="laminating" Count="17" />
+  <row Id="254" TagName="fence" Count="8" />
+  <row Id="257" TagName="thermally-modified" Count="2" ExcerptPostId="3557" WikiPostId="3556" />
+  <row Id="258" TagName="sap" Count="5" ExcerptPostId="2694" WikiPostId="2693" />
+  <row Id="260" TagName="tabletop" Count="53" ExcerptPostId="8254" WikiPostId="8253" />
+  <row Id="261" TagName="template" Count="8" />
+  <row Id="262" TagName="jigsaw" Count="11" ExcerptPostId="5322" WikiPostId="5321" />
+  <row Id="263" TagName="draw-knife" Count="2" />
+  <row Id="265" TagName="table-making" Count="44" ExcerptPostId="8258" WikiPostId="8257" />
+  <row Id="266" TagName="vises" Count="14" />
+  <row Id="267" TagName="organization" Count="2" />
+  <row Id="275" TagName="history" Count="4" ExcerptPostId="3332" WikiPostId="3331" />
+  <row Id="277" TagName="decoration" Count="3" />
+  <row Id="279" TagName="cnc" Count="14" ExcerptPostId="3572" WikiPostId="3571" />
+  <row Id="280" TagName="polyurethane" Count="47" ExcerptPostId="8256" WikiPostId="8255" />
+  <row Id="283" TagName="drill" Count="8" ExcerptPostId="4252" WikiPostId="4251" />
+  <row Id="288" TagName="carbide" Count="2" />
+  <row Id="289" TagName="gluing" Count="11" />
+  <row Id="294" TagName="cutting-board" Count="13" />
+  <row Id="298" TagName="spalted" Count="2" />
+  <row Id="299" TagName="shop-vac" Count="2" />
+  <row Id="300" TagName="mounting" Count="3" ExcerptPostId="4911" WikiPostId="4910" />
+  <row Id="302" TagName="butcher-block" Count="8" />
+  <row Id="304" TagName="sabre-saw" Count="3" ExcerptPostId="5318" WikiPostId="5317" />
+  <row Id="305" TagName="panel-saw" Count="1" ExcerptPostId="5316" WikiPostId="5315" />
+  <row Id="306" TagName="scroll-saw" Count="1" ExcerptPostId="5320" WikiPostId="5319" />
+  <row Id="309" TagName="cut" Count="4" />
+  <row Id="311" TagName="sander" Count="2" />
+  <row Id="313" TagName="installation" Count="5" ExcerptPostId="5592" WikiPostId="5591" />
+  <row Id="321" TagName="timberframe" Count="5" />
+  <row Id="322" TagName="filler" Count="11" />
+  <row Id="323" TagName="knots" Count="2" />
+  <row Id="324" TagName="epoxy" Count="12" />
+  <row Id="326" TagName="butt-joint" Count="12" />
+  <row Id="328" TagName="sled" Count="3" />
+  <row Id="330" TagName="round" Count="3" />
+  <row Id="331" TagName="roundover" Count="3" />
+  <row Id="332" TagName="grinder" Count="2" />
+  <row Id="334" TagName="solvents" Count="2" />
+  <row Id="335" TagName="shellac" Count="7" />
+  <row Id="338" TagName="fine-cut" Count="2" />
+  <row Id="341" TagName="environment" Count="1" />
+  <row Id="342" TagName="sustainability" Count="1" />
+  <row Id="343" TagName="hardware" Count="1" />
+  <row Id="344" TagName="ldf" Count="1" ExcerptPostId="7809" WikiPostId="7808" />
+  <row Id="345" TagName="mirror" Count="1" />
+  <row Id="346" TagName="twist" Count="1" />
+  <row Id="347" TagName="square" Count="1" />
+  <row Id="348" TagName="wax" Count="2" />
+  <row Id="349" TagName="lumber-crayon" Count="1" />
+  <row Id="350" TagName="layout" Count="1" />
+  <row Id="351" TagName="resawing" Count="7" ExcerptPostId="8229" WikiPostId="8228" />
+  <row Id="352" TagName="rtechnique" Count="1" />
+  <row Id="353" TagName="random-orbit-sander" Count="5" ExcerptPostId="8245" WikiPostId="8244" />
+  <row Id="354" TagName="ros" Count="4" ExcerptPostId="8247" WikiPostId="8246" />
+  <row Id="355" TagName="hardboard" Count="1" ExcerptPostId="8327" WikiPostId="8326" />
+  <row Id="356" TagName="marquetry" Count="1" />
+</tags>
