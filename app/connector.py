@@ -9,6 +9,7 @@ class Connector:
         self.config()
 
     def config(self):
+        #./cloud_sql_proxy -credential_file key.json -instances=postgresqlserver-242420:us-west1:pgserver:=tcp:5432 &
         # create a ConfigParser instance
         parser = ConfigParser()
         # read config file
@@ -46,9 +47,11 @@ class Connector:
         try: 
             # attempt to execute user command
             self.cursor.execute(string)
+            self.connection.commit()
             print(string + ' returns:')
             # display the results of the statement
             returnval = self.cursor.fetchall()
             print(returnval)
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
+            self.connection.rollback()

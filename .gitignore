@@ -1,3 +1,4 @@
 # ignore local files per user machine
 __pycache__
 database.ini
+key.json
