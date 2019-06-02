@@ -34,6 +34,7 @@ class Connector:
             print(error)
         # create a cursor instance to use for the duration of this connection
         self.cursor = self.connection.cursor()
+        print(self.connection.encoding)
 
     def disconnect(self):
         self.cursor.close()
@@ -51,7 +52,8 @@ class Connector:
             print(string + ' returns:')
             # display the results of the statement
             returnval = self.cursor.fetchall()
-            print(returnval)
+            return returnval
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             self.connection.rollback()
+            return error

@@ -10,6 +10,8 @@ if __name__ == '__main__':
         userstring = input("Enter Command: ")
         if userstring == "exit": 
             break
-        connector.operate(userstring)
+        returnval = connector.operate(userstring)
+        for val in returnval:
+            print(val)
     # disconnect from the database
     connector.disconnect()
