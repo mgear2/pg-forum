@@ -1,4 +1,3 @@
-
 class Browser:
     def __init__(self, connector):
         self.connector = connector
@@ -7,6 +6,8 @@ class Browser:
         while True:
             userstring = input("Enter Command: ")
             if userstring == "exit": 
+                return "exit"
+            if userstring == "back":
                 return
             returnval = self.connector.operate(userstring, None)
             print(userstring + ' returns:')
@@ -16,3 +17,6 @@ class Browser:
                     print(val)
                 if(isinstance(returnval, Exception)):
                     print(returnval)
+
+    def exploreusers(self):
+        return
