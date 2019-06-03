@@ -5,7 +5,7 @@ from configparser import ConfigParser
 class Connector: 
     def __init__(self):
         self.filename = 'app/database.ini'
-        self.section = 'postgresql'
+        self.section = 'postgres'
         self.config()
 
     def config(self):
@@ -45,7 +45,8 @@ class Connector:
 
     def operate(self, string, builder):
         try: 
-            # attempt to execute command
+            # differentiate between commands comming from dbbuilder.py with builder variable (tuples for format string)
+            # commands comming from browser.py do not require a builder variable
             if builder == None:
                 self.cursor.execute(string)
             else:
@@ -57,7 +58,6 @@ class Connector:
         except (Exception, psycopg2.DatabaseError) as error:
             if str(error) == "no results to fetch":
                 return
-            # uncomment the line below for debugging dbbuilder.py
             print("Caught: " + str(error))
             self.connection.rollback()
             return error
