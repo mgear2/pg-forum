@@ -9,7 +9,6 @@ class Connector:
         self.config()
 
     def config(self):
-        #./cloud_sql_proxy -credential_file key.json -instances=postgresqlserver-242420:us-west1:pgserver:=tcp:5432 &
         # create a ConfigParser instance
         parser = ConfigParser()
         # read config file
@@ -26,8 +25,8 @@ class Connector:
 
     def connect(self):
         self.connection = None
+        # connect to the PostgreSQL server
         try:
-            # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
             self.connection = psycopg2.connect(**self.params)
         except (Exception, psycopg2.DatabaseError) as error:
@@ -44,16 +43,20 @@ class Connector:
         else:
             print('Connection was already closed!')
 
-    def operate(self, string):
+    def operate(self, string, builder):
         try: 
-            # attempt to execute user command
-            self.cursor.execute(string)
+            # attempt to execute command
+            if builder == None:
+                self.cursor.execute(string)
+            else:
+                self.cursor.execute(string, builder)
             self.connection.commit()
-            print(string + ' returns:')
-            # display the results of the statement
+            # return the results of the statement
             returnval = self.cursor.fetchall()
             return returnval
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            if str(error) == "no results to fetch":
+                return
+            print("Caught: " + str(error))
             self.connection.rollback()
             return error
