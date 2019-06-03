@@ -1,4 +1,6 @@
+# pylint: disable=import-error
 from connector import Connector
+import psycopg2
 
 if __name__ == '__main__':
     # create a Connector instance and connect to the database
@@ -16,5 +18,7 @@ if __name__ == '__main__':
         if(isinstance(returnval, list)):
             for val in returnval:
                 print(val)
+        if(isinstance(returnval, Exception)):
+            print(returnval)
     # disconnect from the database
     connector.disconnect()
