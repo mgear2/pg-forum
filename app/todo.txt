@@ -1,0 +1,7 @@
+Implement usernames for comments
+Implement printing functionality for subcomments
+Implement view tag (return posts associated with tag)
+
+Implement user permissions/roles
+Implement ability for users to post/delete their own posts, subposts, comments, subcomments
+Implement ability for admins to ban users, delete any posts, subposts, comments, subcomments, lock threads, promote/demote moderators
