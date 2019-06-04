@@ -2,7 +2,8 @@
 import xml.etree.ElementTree as ET
 from connector import Connector
 import psycopg2
-import datetime 
+import datetime
+import re
 
 class DBbuilder():
     def __init__(self, connector, lims):
@@ -97,6 +98,12 @@ class DBbuilder():
         self.connector.operate(string, tuples)
         self.count("Users")
 
+    # cool little function from https://stackoverflow.com/questions/9662346/python-code-to-remove-html-tags-from-a-string using regex
+    def cleanhtml(self, raw_html):
+        cleanr = re.compile('<.*?>')
+        cleantext = re.sub(cleanr, '', raw_html)
+        return cleantext
+
     def buildposts(self):
         print ("Initializing table Posts...this may take a few minutes")
         self.connector.operate(self.createposts, None)
@@ -112,8 +119,11 @@ class DBbuilder():
             favorite_count = type_tag.get('FavoriteCount')
             view_count = type_tag.get('ViewCount')
             title = type_tag.get('Title')
-            body = type_tag.get('Body')
+            raw_html = type_tag.get('Body')
             score = type_tag.get('Score')
+            # remove html tags and newlines/carriage returns from post body
+            clean = self.cleanhtml(raw_html)
+            body = clean.replace('\n', ' ').replace('\r', ' ')
 
             if int(post_id) > self.lims[2]:
                 break
@@ -312,7 +322,7 @@ class DBbuilder():
         tuples = ()
         i = 0
 
-        for type_tag in self.commentsroot.findall('row'):
+        for type_tag in self.badgesroot.findall('row'):
             badge_id = type_tag.get('Id')
             badge_name = type_tag.get('Name')
             if int(badge_id) > self.lims[2]:
