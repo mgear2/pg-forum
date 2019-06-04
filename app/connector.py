@@ -58,6 +58,6 @@ class Connector:
         except (Exception, psycopg2.DatabaseError) as error:
             if str(error) == "no results to fetch":
                 return
-            print("Caught: " + str(error))
+            print("Caught: on {0} with arguments {1};\nERROR: {2}".format(string, str(builder), str(error)))
             self.connection.rollback()
             return error

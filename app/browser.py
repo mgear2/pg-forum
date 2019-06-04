@@ -12,6 +12,7 @@ class Browser:
         self.viewpost = "SELECT creation_date, last_edit_date, favorite_count, view_count, score, title, post_id, body FROM posts WHERE post_id = (%s)"
         self.viewposter = "SELECT users.user_name FROM users, posted WHERE posted.post_id = (%s) AND users.user_id=posted.user_id"
         self.viewsubposts = "SELECT creation_date, last_edit_date, favorite_count, view_count, score, title, posts.post_id, body FROM posts, subposts WHERE subposts.parent_id = (%s) AND Posts.post_id = Subposts.child_id"
+        self.findparent = "SELECT subposts.parent_id FROM Subposts WHERE subposts.child_id = (%s)"
         self.viewcomments = """SELECT thread.post_id, comments.comment_id, comments.score, comments.creation_date, comments.text 
                             FROM Comments, Thread, Posts WHERE posts.post_id = (%s) AND posts.post_id = thread.post_id AND thread.comment_id = comments.comment_id 
                             """
@@ -32,7 +33,7 @@ class Browser:
                 continue
             if userstring == "exit": 
                 self.exit()
-            if userstring == "query tool":
+            if userstring == "query tool" or userstring == "sqlrunner":
                 self.sqlrunner()
                 continue
             if userstring.split(' ')[0] == "explore":
@@ -61,8 +62,8 @@ class Browser:
                 print("Exiting Query Tool")
                 return
             returnval = self.connector.operate(userstring, None)
-            print(userstring + ' returns:')
-            print(type(returnval))
+            #print(userstring + ' returns:')
+            #print(type(returnval))
             if(isinstance(returnval, list)): 
                 for val in returnval:
                     print(val)
@@ -116,10 +117,14 @@ class Browser:
         for i in range(0,indent):
             indentstring += "\t"
         wrapper = TextWrapper(width=150, initial_indent=indentstring, subsequent_indent=indentstring)
-        #for row in rows:
+        if row[5] == None and indent == 0:
+            parent = self.connector.operate(self.findparent, (row[6],))
+            title = "Subpost of Post {0}".format(parent[0][0])
+        else:
+            title = row[5]
         if indent == 0:
             print(self.divider + "\n" + self.divider)
-            print("{0}Title:\t{1}".format(indentstring, row[5]))
+            print("{0}Title:\t{1}".format(indentstring, title))
         body = wrapper.wrap(row[7])
         for line in body:
             print (line)
@@ -161,8 +166,6 @@ class Browser:
 
         userstring = ""
 
-        print ("test")  
-
         while True:
             if userstring == "":
                 returnval = self.connector.operate(inputstring, (given_id,))
@@ -178,7 +181,7 @@ class Browser:
                         self.printuser(returnval[0], badges)
                         return
                     elif context == "post":
-                        subposts = self.connector.operate(self.viewsubposts, given_id)
+                        subposts = self.connector.operate(self.viewsubposts, (given_id,))
                         postuser = self.connector.operate(self.viewposter, (returnval[0][6],))
                         if postuser == []:
                             postuser = "User not found with Id {0}".format(given_id)
