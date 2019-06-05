@@ -34,8 +34,14 @@ class DBbuilder():
         # keys referenced by foreign keys need to be checked to ensure that insert queries will not fail because on a missing pkey. Storing these values client side increases build speed. 
         self.post_ids = []
         self.user_ids = []
+        self.user_names = []
         self.comment_ids = []
         self.badge_ids = []
+
+    def createadmin(self):
+        adminstring = "INSERT INTO Users (user_id, user_name, location, reputation, creation_date, last_active_date, about) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        tuples = -999, "Admin", "Wherever", 999999, datetime.datetime.now(), datetime.datetime.now(), "This is too much responsibility"
+        self.connector.operate(adminstring, tuples)
 
     def count(self, table):
         count = self.connector.operate("SELECT COUNT(*) FROM {0}".format(table), None)
@@ -88,11 +94,14 @@ class DBbuilder():
                 break
             if len(str(about)) > lims[3] or len(str(user_name)) > lims[0]:
                 continue
+            if user_name in self.user_names:
+                break
             if i > 0:
                 string += ","
             string += "(%s, %s, %s, %s, %s, %s, %s)"
             tuples += user_id, user_name, location, reputation, datetime.datetime.strptime(creation_date, '%Y-%m-%dT%H:%M:%S.%f'), datetime.datetime.strptime(last_active_date, '%Y-%m-%dT%H:%M:%S.%f'), about
             self.user_ids.append(int(user_id))
+            self.user_names.append(user_name)
             i += 1
 
         self.connector.operate(string, tuples)
@@ -386,6 +395,8 @@ if __name__ == '__main__':
     dbbuilder.builddecorated()
     dbbuilder.buildsubposts()
     dbbuilder.buildsubcomments()
+
+    dbbuilder.createadmin()
 
     # disconnect from the database
     connector.disconnect()

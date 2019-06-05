@@ -1,5 +1,8 @@
-import sys
+# pylint: disable=import-error
 from textwrap import TextWrapper
+import sys
+import datetime
+import psycopg2
 
 class Browser:
     def __init__(self, connector):
@@ -13,12 +16,29 @@ class Browser:
         self.viewposter = "SELECT users.user_name FROM users, posted WHERE posted.post_id = (%s) AND users.user_id=posted.user_id"
         self.viewsubposts = "SELECT creation_date, last_edit_date, favorite_count, view_count, score, title, posts.post_id, body FROM posts, subposts WHERE subposts.parent_id = (%s) AND Posts.post_id = Subposts.child_id"
         self.findparent = "SELECT subposts.parent_id FROM Subposts WHERE subposts.child_id = (%s)"
-        self.viewcomments = """SELECT thread.post_id, comments.comment_id, comments.score, comments.creation_date, comments.text 
-                            FROM Comments, Thread, Posts WHERE posts.post_id = (%s) AND posts.post_id = thread.post_id AND thread.comment_id = comments.comment_id 
-                            """
+        self.viewcomments = ("SELECT thread.post_id, comments.comment_id, comments.score, comments.creation_date, comments.text \
+                            FROM Comments, Thread, Posts WHERE posts.post_id = (%s) AND posts.post_id = thread.post_id AND thread.comment_id = comments.comment_id")
         self.viewcommenter = "SELECT users.user_name FROM Commented, Users WHERE commented.comment_id = (%s) AND commented.user_id = users.user_id"
         self.confirmtag = "SELECT tags.tag_name, posts.post_id, posts.title FROM Tags, Posts, Tagged WHERE tags.tag_id = (%s) AND tags.tag_id = tagged.tag_id AND tagged.post_id = posts.post_id LIMIT 5"
         self.viewtagposts = "SELECT tags.tag_name, posts.post_id, posts.title FROM Tags, Posts, Tagged WHERE tags.tag_id = (%s) AND tags.tag_id = tagged.tag_id AND tagged.post_id = posts.post_id OFFSET (%s) LIMIT (%s)"
+        
+        self._newpost = "INSERT INTO Posts (post_id, creation_date, last_edit_date, favorite_count, view_count, score, title, body) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        self._newpostid = "SELECT max(post_id) FROM Posts"
+        self._newposted = "INSERT INTO Posted (user_id, post_id) VALUES (%s, %s)"
+        #self._newpost = "CALL newpost(%s, %s, %s, %s, %s, %s, %s, %s)"
+        self._posttag = "INSERT INTO Tagged (tag_id, tag_name) VALUES (%s, %s)"
+        self._newsubpost = "INSERT INTO Subposts (parent_id, child_id) VALUES (%s, %s)"
+        self._newcomment = "INSERT INTO Comments (comment_id, score, creation_date, text) VALUES (%s, %s, %s, %s)"
+        self._newcommentid = "SELECT max(comment_id) FROM Comments"
+        self._newcommented = "INSERT INTO Commented (user_id, comment_id) VALUES (%s, %s)"
+        self._newthread = "INSERT INTO Thread (post_id, comment_id) VALUES (%s, %s)"
+        self._deletefromposts = "DELETE FROM Posts WHERE post_id = (%s)"
+        self._deletefromsubpost = "DELETE FROM Subposts WHERE parent_id = (%s) OR child_id = (%s)"
+        self._deletefromposted = "DELETE FROM Posted WHERE user_id = (%s) OR post_id = (%s)"
+        self._deletefromcommented = "DELETE FROM Commented WHERE user_id = (%s) OR comment_id = (%s)"
+        self._deletefromcomments = "DELETE FROM Comments WHERE comment_id = (%s)"
+        self._deletefromthread = "DELETE FROM Thread WHERE comment_id = (%s) OR post_id = (%s)"
+        self.id = -999
         self.offset = 0
         self.limit = 10
         self.divider = "--------------------------------------------------------------------------------------"
@@ -31,6 +51,8 @@ class Browser:
         while True:
             userstring = input("Enter Command: ")
 
+            verify = userstring.split(' ')
+
             if userstring == "":
                 continue
             if userstring == "exit": 
@@ -38,17 +60,29 @@ class Browser:
             if userstring == "query tool" or userstring == "sqlrunner":
                 self.sqlrunner()
                 continue
-            if userstring.split(' ')[0] == "explore":
-                if len(userstring.split(' ')) < 2:
+            if verify[0] == "explore":
+                if len(verify) < 2:
                     print("Please define a context to explore")
                     continue
-                self.explore(userstring.split(' ')[1])
+                self.explore(verify[1])
                 continue
-            if userstring.split(' ')[0] == "view":
-                if len(userstring.split(' ')) < 3:
+            if verify[0] == "view":
+                if len(verify) < 3:
                     print("Please define both a context and an id to view")
                     continue
-                self.view(userstring.split(' ')[1], userstring.split(' ')[2])
+                self.view(verify[1], verify[2])
+                continue
+            if verify[0] == "new":
+                if len(verify) < 2:
+                    print("Please define a context for new")
+                    continue
+                self.new(verify)
+                continue
+            if verify[0] == "delete":
+                if len(verify) < 2:
+                    print("Please define a context for delete")
+                    continue
+                self.delete(verify)
                 continue
             else:
                 print("Command not recognized")
@@ -93,7 +127,7 @@ class Browser:
                 if(isinstance(returnval, list)): 
                     for val in returnval:
                         print(val)                    
-                    if returnval == [] or len(returnval) <= 10: 
+                    if returnval == [] or len(returnval) < 10: 
                         print ("End of results")
                         break
                 userstring = input("<ENTER>/\'back\': ")
@@ -130,7 +164,7 @@ class Browser:
         body = wrapper.wrap(row[7])
         for line in body:
             print (line)
-        print("{0}By:\t{1}\t\tScore: {2}\tViews: {3}\tFavorites: {4}".format(indentstring, postuser, row[4], row[3], row[2]))
+        print("{0}By:\t{1}\tID: {5}\t\tScore: {2}\tViews: {3}\tFavorites: {4}".format(indentstring, postuser, row[4], row[3], row[2], row[6]))
         print("{0}Posted: {1}\tLast Edited: {2}".format(indentstring, row[0], row[1]))
         print(self.divider)
 
@@ -144,7 +178,7 @@ class Browser:
             body = wrapper.wrap(row[4])
             for line in body:
                 print (line)
-            print("{0}By:\t{1}\t\tScore: {2}".format(indentstring, commentuser[0][0], row[2]))
+            print("{0}By:\t{1}\tID: {2}\t\tScore: {3}".format(indentstring, commentuser[0][0], row[1], row[2]))
             print("{0}Posted: {1}".format(indentstring, row[3]))
             print(self.divider)
 
@@ -203,7 +237,7 @@ class Browser:
                         if(isinstance(returnval, list)): 
                             for val in returnval:
                                 print(val)                    
-                            if returnval == [] or len(returnval) <= 10: 
+                            if returnval == [] or len(returnval) < 10: 
                                 print ("End of results")
                                 break
                 userstring = input("<ENTER>/\'back\': ")
@@ -214,3 +248,109 @@ class Browser:
             if userstring == "back":
                 print("Exiting explorer")
                 return
+    
+    def new(self, verifylist):
+        if verifylist[1] == "post":
+            if len(verifylist) < 3:
+                self.newpost(verifylist)
+                return
+            else:
+                self.newsubpost(verifylist)
+                return
+        if verifylist[1] == "comment":
+            if len(verifylist) < 3:
+                print("Please define a post id to comment on")
+                return
+            else:
+                self.newcomment(verifylist)
+                return
+        else:
+            print("Unrecognized command")
+            return
+
+    def newpost(self, verifylist):
+        newtitle = ""
+        newtitle = input("Enter Post Title: ")
+        now = datetime.datetime.now()
+        newbody = ""
+        newbody = input("Enter Post Body: ")
+        newid = self.connector.operate(self._newpostid, None)
+        newid = newid[0][0]
+        newid += 1
+        newpost = (newid, now, now, 0, 0, 0, newtitle, newbody)
+        self.connector.operate(self._newpost, newpost)
+        self.connector.operate(self._newposted, (self.id, newid))
+        print("Created new post with ID {0}".format(newid))
+
+    def newsubpost(self, verifylist):
+        newtitle = None
+        parent = self.connector.operate(self.viewpost, (verifylist[2],))
+        if parent == []:
+            print("Given Post ID not found")
+            return
+        if isinstance(parent, psycopg2.errors.InvalidTextRepresentation):
+            print("ID must be integer")
+            return
+        parent = parent[0][6]
+        now = datetime.datetime.now()
+        newbody = ""
+        newbody = input("Enter Post Body: ")
+        newid = self.connector.operate(self._newpostid, None)
+        newid = newid[0][0]
+        newid += 1
+        newpost = (newid, now, now, 0, 0, 0, newtitle, newbody)
+        self.connector.operate(self._newpost, newpost)
+        self.connector.operate(self._newposted, (self.id, newid))
+        self.connector.operate(self._newsubpost, (parent, newid))
+        print("Created new post with ID {0} on Parent {1}".format(newid, parent))
+
+    def newcomment(self, verifylist):
+        parent = self.connector.operate(self.findparent, (verifylist[2],))
+        if parent == []:
+            print("Given Post ID not found")
+            return
+        if isinstance(parent, psycopg2.errors.InvalidTextRepresentation):
+            print("ID must be integer")
+            return
+        parent = parent[0][6]
+        now = datetime.datetime.now()
+        newbody = input("Enter Post Body: ")
+        newid = self.connector.operate(self._newcommentid, None)
+        newid = newid[0][0]
+        newid += 1
+        newcomment = (newid, 0, now, newbody)
+        self.connector.operate(self._newcomment, newcomment)
+        self.connector.operate(self._newcommented, (self.id, newid))
+        self.connector.operate(self._newthread, (parent, newid))
+        print("Created new Comment with ID {0} on Parent {1}".format(newid, parent))
+
+    def delete(self, verifylist):
+        if len(verifylist) < 3:
+                print("Please define an ID to delete")
+                return
+        if verifylist[1] == "post":
+            self.deletepost(verifylist)
+            return
+        if verifylist[1] == "comment":
+            self.deletecomment(verifylist)
+            return
+        else:
+            print("Unrecognized command")
+            return
+
+    def deletepost(self, verifylist):
+        postid = verifylist[2]
+        parent = self.connector.operate(self.viewpost, (verifylist[2],))
+        if parent != []:
+            parent = parent[0][6]
+            self.connector.operate(self._deletefromsubpost, (postid, parent))
+        self.connector.operate(self._deletefromposted, (self.id, postid))
+        self.connector.operate(self._deletefromposts, (postid,))
+        print("Deleted post with ID {0}".format(postid))
+
+    def deletecomment(self, verifylist):
+        commentid = verifylist[2]
+        self.connector.operate(self._deletefromcommented, (self.id, commentid))
+        self.connector.operate(self._deletefromthread, (commentid, self.id))
+        self.connector.operate(self._deletefromcomments, (commentid,))
+        print("Deleted comment with ID {0}".format(commentid))

@@ -1,5 +1,11 @@
+-At least one question must be answered by implementing a stored procedure in your database.
+
+Sanizite inputs for sql queries
+More complete testing (unit tests)
+Refactor with better PEP standards
+
 Implement printing functionality for subcomments
+Implement ability to create subcomments
 
 Implement user permissions/roles
-Implement ability for users to post/delete their own posts, subposts, comments, subcomments
 Implement ability for admins to ban users, delete any posts, subposts, comments, subcomments, lock threads, promote/demote moderators

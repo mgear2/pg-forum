@@ -45,8 +45,7 @@ class Connector:
 
     def operate(self, string, builder):
         try: 
-            # differentiate between commands comming from dbbuilder.py with builder variable (tuples for format string)
-            # commands comming from browser.py do not require a builder variable
+            # differentiate between commands with builder variable (tuples for format string) and commands without
             if builder == None:
                 self.cursor.execute(string)
             else:
