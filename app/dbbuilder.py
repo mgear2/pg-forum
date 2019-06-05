@@ -29,6 +29,14 @@ class DBbuilder():
         self.createdecorated = 'CREATE TABLE Decorated (user_id int REFERENCES Users(user_id), badge_id int REFERENCES Badges(badge_id), date_awarded timestamp)'
         self.createsubposts = 'CREATE TABLE Subposts (parent_id int REFERENCES Posts(post_id), child_id int REFERENCES Posts(post_id))'
         self.createsubcomments = 'CREATE TABLE Subcomments (parent_id int REFERENCES Comments(comment_id), child_id int REFERENCES Comments(comment_id))'
+
+        self.createstoredproc = "CREATE OR REPLACE PROCEDURE newpost(post_id int, creation_date timestamp, last_edit_date timestamp, \
+                                favorite_count int, view_count int, score int, title varchar(100), body varchar(5000)) AS $$\
+                                BEGIN\
+                                INSERT INTO Posts (post_id, creation_date, last_edit_date, favorite_count, view_count, score, title, body)\
+                                     VALUES (post_id, creation_date, last_edit_date, favorite_count, view_count, score, title, body);\
+                                END;\
+                                $$ LANGUAGE plpgsql;"
         # define limit values
         self.lims = lims
         # keys referenced by foreign keys need to be checked to ensure that insert queries will not fail because on a missing pkey. Storing these values client side increases build speed. 
@@ -397,6 +405,7 @@ if __name__ == '__main__':
     dbbuilder.buildsubcomments()
 
     dbbuilder.createadmin()
+    connector.operate(dbbuilder.createstoredproc, None)
 
     # disconnect from the database
     connector.disconnect()

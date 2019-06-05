@@ -32,10 +32,11 @@ class Browser:
         self._newcommentid = "SELECT max(comment_id) FROM Comments"
         self._newcommented = "INSERT INTO Commented (user_id, comment_id) VALUES (%s, %s)"
         self._newthread = "INSERT INTO Thread (post_id, comment_id) VALUES (%s, %s)"
-        self._deletefromposts = "DELETE FROM Posts WHERE post_id = (%s)"
+        self._deletefromtagged = "DELETE FROM Tagged WHERE Tagged.post_id = (%s)"
+        self._deletefromposts = "DELETE FROM Posts WHERE Posts.post_id=(%s)"
         self._deletefromsubpost = "DELETE FROM Subposts WHERE parent_id = (%s) OR child_id = (%s)"
         self._deletefromposted = "DELETE FROM Posted WHERE user_id = (%s) OR post_id = (%s)"
-        self._deletefromcommented = "DELETE FROM Commented WHERE user_id = (%s) OR comment_id = (%s)"
+        self._deletefromcommented = "DELETE FROM Commented WHERE comment_id = (%s)"
         self._deletefromcomments = "DELETE FROM Comments WHERE comment_id = (%s)"
         self._deletefromthread = "DELETE FROM Thread WHERE comment_id = (%s) OR post_id = (%s)"
         self.id = -999
@@ -151,15 +152,15 @@ class Browser:
 
     def printpost(self, row, postuser, indent):
         indentstring = ""
+        title = row[5]
         for i in range(0, indent):
             indentstring += "\t"
         wrapper = TextWrapper(
             width=150, initial_indent=indentstring, subsequent_indent=indentstring)
         if row[5] == None and indent == 0:
             parent = self.connector.operate(self.findparent, (row[6],))
-            title = "Subpost of Post {0}".format(parent[0][0])
-        else:
-            title = row[5]
+            if parent != []:
+                title = "Subpost of Post {0}".format(parent[0][0])
         if indent == 0:
             print(self.divider + "\n" + self.divider)
             print("{0}Title:\t{1}".format(indentstring, title))
@@ -175,6 +176,10 @@ class Browser:
     def printcomments(self, comments, indent):
         for row in comments:
             commentuser = self.connector.operate(self.viewcommenter, (row[1],))
+            if isinstance(commentuser, list) == False or commentuser == []:
+                commentuser = "Not found"
+            else:
+                commentuser = commentuser[0][0]
             indentstring = ""
             for i in range(0, indent):
                 indentstring += "\t"
@@ -184,7 +189,7 @@ class Browser:
             for line in body:
                 print(line)
             print("{0}By:\t{1}\tID: {2}\t\tScore: {3}".format(
-                indentstring, commentuser[0][0], row[1], row[2]))
+                indentstring, commentuser, row[1], row[2]))
             print("{0}Posted: {1}".format(indentstring, row[3]))
             print(self.divider)
 
@@ -208,6 +213,7 @@ class Browser:
         if True:
             if userstring == "":
                 returnval = self.connector.operate(inputstring, (given_id,))
+                print(returnval)
                 if(isinstance(returnval, list)):
                     if returnval == []:
                         print("End of results")
@@ -231,6 +237,8 @@ class Browser:
                         else:
                             postuser = postuser[0][0]
                         self.printpost(returnval[0], postuser, 0)
+                        comments = self.connector.operate(self.viewcomments, (given_id,))
+                        self.printcomments(comments, 2)
                         for post in subposts:
                             subpostuser = self.connector.operate(
                                 self.viewposter, (post[6],))
@@ -300,15 +308,11 @@ class Browser:
         for tag in newtags:
             i += 1
             dbtag = self.connector.operate(self._findtagid, (tag,))
-            print(dbtag)
-            print("Adding tag_id: {0}, post_id {1} to Tagged".format(dbtag[0][0],newid))
             string += "(%s, %s)"
             tuples += dbtag[0][0],newid
             if i < len(newtags):
                 string += ","
-        print(tuples)
         self.connector.operate(string, tuples)
-        print(self.connector.operate("SELECT * FROM Tagged WHERE Post_id = {0}".format(newid),None))
         print("Created new post with ID {0}".format(newid))
 
     def newsubpost(self, verifylist):
@@ -334,14 +338,14 @@ class Browser:
         print("Created new post with ID {0} on Parent {1}".format(newid, parent))
 
     def newcomment(self, verifylist):
-        parent = self.connector.operate(self.findparent, (verifylist[2],))
+        parent = verifylist[2]
         if parent == []:
             print("Given Post ID not found")
             return
         if isinstance(parent, psycopg2.errors.InvalidTextRepresentation):
             print("ID must be integer")
             return
-        parent = parent[0][6]
+        print(parent)
         now = datetime.datetime.now()
         newbody = input("Enter Post Body: ")
         newid = self.connector.operate(self._newcommentid, None)
@@ -374,12 +378,13 @@ class Browser:
             parent = parent[0][6]
             self.connector.operate(self._deletefromsubpost, (postid, parent))
         self.connector.operate(self._deletefromposted, (self.id, postid))
+        self.connector.operate(self._deletefromtagged, (postid,))
         self.connector.operate(self._deletefromposts, (postid,))
         print("Deleted post with ID {0}".format(postid))
 
     def deletecomment(self, verifylist):
         commentid = verifylist[2]
-        self.connector.operate(self._deletefromcommented, (self.id, commentid))
+        self.connector.operate(self._deletefromcommented, (commentid,))
         self.connector.operate(self._deletefromthread, (commentid, self.id))
         self.connector.operate(self._deletefromcomments, (commentid,))
         print("Deleted comment with ID {0}".format(commentid))
