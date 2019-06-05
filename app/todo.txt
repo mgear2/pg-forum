@@ -1,4 +1,4 @@
--At least one question must be answered by implementing a stored procedure in your database.
+-Add tags to post
 
 Sanizite inputs for sql queries
 More complete testing (unit tests)

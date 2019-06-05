@@ -4,6 +4,7 @@ import sys
 import datetime
 import psycopg2
 
+
 class Browser:
     def __init__(self, connector):
         self.connector = connector
@@ -21,12 +22,11 @@ class Browser:
         self.viewcommenter = "SELECT users.user_name FROM Commented, Users WHERE commented.comment_id = (%s) AND commented.user_id = users.user_id"
         self.confirmtag = "SELECT tags.tag_name, posts.post_id, posts.title FROM Tags, Posts, Tagged WHERE tags.tag_id = (%s) AND tags.tag_id = tagged.tag_id AND tagged.post_id = posts.post_id LIMIT 5"
         self.viewtagposts = "SELECT tags.tag_name, posts.post_id, posts.title FROM Tags, Posts, Tagged WHERE tags.tag_id = (%s) AND tags.tag_id = tagged.tag_id AND tagged.post_id = posts.post_id OFFSET (%s) LIMIT (%s)"
-        
-        self._newpost = "INSERT INTO Posts (post_id, creation_date, last_edit_date, favorite_count, view_count, score, title, body) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         self._newpostid = "SELECT max(post_id) FROM Posts"
         self._newposted = "INSERT INTO Posted (user_id, post_id) VALUES (%s, %s)"
-        #self._newpost = "CALL newpost(%s, %s, %s, %s, %s, %s, %s, %s)"
-        self._posttag = "INSERT INTO Tagged (tag_id, tag_name) VALUES (%s, %s)"
+        self._newpost = "CALL newpost(%s, %s, %s, %s, %s, %s, %s, %s)"
+        self._posttag = "INSERT INTO Tagged (tag_id, post_id) VALUES (%s, %s)"
+        self._findtagid = "SELECT tag_id, tag_name from Tags WHERE tag_name = (%s)"
         self._newsubpost = "INSERT INTO Subposts (parent_id, child_id) VALUES (%s, %s)"
         self._newcomment = "INSERT INTO Comments (comment_id, score, creation_date, text) VALUES (%s, %s, %s, %s)"
         self._newcommentid = "SELECT max(comment_id) FROM Comments"
@@ -55,7 +55,7 @@ class Browser:
 
             if userstring == "":
                 continue
-            if userstring == "exit": 
+            if userstring == "exit":
                 self.exit()
             if userstring == "query tool" or userstring == "sqlrunner":
                 self.sqlrunner()
@@ -92,15 +92,15 @@ class Browser:
 
         while True:
             userstring = input("Enter SQL Query: ")
-            if userstring == "exit": 
+            if userstring == "exit":
                 self.exit()
             if userstring == "back":
                 print("Exiting Query Tool")
                 return
             returnval = self.connector.operate(userstring, None)
-            #print(userstring + ' returns:')
-            #print(type(returnval))
-            if(isinstance(returnval, list)): 
+            # print(userstring + ' returns:')
+            # print(type(returnval))
+            if(isinstance(returnval, list)):
                 for val in returnval:
                     print(val)
 
@@ -116,19 +116,20 @@ class Browser:
         elif context == "tags":
             inputstring = self.exploretags
         else:
-            print ("Can't explore {0}".format(context))
+            print("Can't explore {0}".format(context))
             return
 
         userstring = ""
 
         while True:
             if userstring == "":
-                returnval = self.connector.operate(inputstring, (self.offset, self.limit))
-                if(isinstance(returnval, list)): 
+                returnval = self.connector.operate(
+                    inputstring, (self.offset, self.limit))
+                if(isinstance(returnval, list)):
                     for val in returnval:
-                        print(val)                    
-                    if returnval == [] or len(returnval) < 10: 
-                        print ("End of results")
+                        print(val)
+                    if returnval == [] or len(returnval) < 10:
+                        print("End of results")
                         break
                 userstring = input("<ENTER>/\'back\': ")
                 self.offset += 10
@@ -150,9 +151,10 @@ class Browser:
 
     def printpost(self, row, postuser, indent):
         indentstring = ""
-        for i in range(0,indent):
+        for i in range(0, indent):
             indentstring += "\t"
-        wrapper = TextWrapper(width=150, initial_indent=indentstring, subsequent_indent=indentstring)
+        wrapper = TextWrapper(
+            width=150, initial_indent=indentstring, subsequent_indent=indentstring)
         if row[5] == None and indent == 0:
             parent = self.connector.operate(self.findparent, (row[6],))
             title = "Subpost of Post {0}".format(parent[0][0])
@@ -163,22 +165,26 @@ class Browser:
             print("{0}Title:\t{1}".format(indentstring, title))
         body = wrapper.wrap(row[7])
         for line in body:
-            print (line)
-        print("{0}By:\t{1}\tID: {5}\t\tScore: {2}\tViews: {3}\tFavorites: {4}".format(indentstring, postuser, row[4], row[3], row[2], row[6]))
-        print("{0}Posted: {1}\tLast Edited: {2}".format(indentstring, row[0], row[1]))
+            print(line)
+        print("{0}By:\t{1}\tID: {5}\t\tScore: {2}\tViews: {3}\tFavorites: {4}".format(
+            indentstring, postuser, row[4], row[3], row[2], row[6]))
+        print("{0}Posted: {1}\tLast Edited: {2}".format(
+            indentstring, row[0], row[1]))
         print(self.divider)
 
     def printcomments(self, comments, indent):
         for row in comments:
             commentuser = self.connector.operate(self.viewcommenter, (row[1],))
             indentstring = ""
-            for i in range(0,indent):
+            for i in range(0, indent):
                 indentstring += "\t"
-            wrapper = TextWrapper(width=150, initial_indent=indentstring, subsequent_indent=indentstring)
+            wrapper = TextWrapper(
+                width=150, initial_indent=indentstring, subsequent_indent=indentstring)
             body = wrapper.wrap(row[4])
             for line in body:
-                print (line)
-            print("{0}By:\t{1}\tID: {2}\t\tScore: {3}".format(indentstring, commentuser[0][0], row[1], row[2]))
+                print(line)
+            print("{0}By:\t{1}\tID: {2}\t\tScore: {3}".format(
+                indentstring, commentuser[0][0], row[1], row[2]))
             print("{0}Posted: {1}".format(indentstring, row[3]))
             print(self.divider)
 
@@ -195,60 +201,66 @@ class Browser:
         elif context == "tag":
             inputstring = self.confirmtag
         else:
-            print ("Can't view {0}".format(context))
+            print("Can't view {0}".format(context))
             return
 
         userstring = ""
-
-        while True:
+        if True:
             if userstring == "":
                 returnval = self.connector.operate(inputstring, (given_id,))
-                if(isinstance(returnval, list)):       
-                    if returnval == []: 
-                        print ("End of results")
-                        break
+                if(isinstance(returnval, list)):
+                    if returnval == []:
+                        print("End of results")
+                        return
                     if context == "user":
-                        userbadges = self.connector.operate(self.userbadges, (given_id, given_id))
+                        userbadges = self.connector.operate(
+                            self.userbadges, (given_id, given_id))
                         badges = []
                         for badge in userbadges:
                             badges += badge
                         self.printuser(returnval[0], badges)
                         return
                     elif context == "post":
-                        subposts = self.connector.operate(self.viewsubposts, (given_id,))
-                        postuser = self.connector.operate(self.viewposter, (returnval[0][6],))
+                        subposts = self.connector.operate(
+                            self.viewsubposts, (given_id,))
+                        postuser = self.connector.operate(
+                            self.viewposter, (returnval[0][6],))
                         if postuser == []:
-                            postuser = "User not found with Id {0}".format(given_id)
+                            postuser = "User not found with Id {0}".format(
+                                given_id)
                         else:
                             postuser = postuser[0][0]
                         self.printpost(returnval[0], postuser, 0)
                         for post in subposts:
-                            subpostuser = self.connector.operate(self.viewposter, (post[6],))
+                            subpostuser = self.connector.operate(
+                                self.viewposter, (post[6],))
                             if subpostuser == []:
                                 subpostuser = "User not found"
                             else:
                                 subpostuser = subpostuser[0][0]
                             self.printpost(post, subpostuser, 1)
-                            comments = self.connector.operate(self.viewcomments, (post[6],))
+                            comments = self.connector.operate(
+                                self.viewcomments, (post[6],))
                             self.printcomments(comments, 2)
-                        break
+                        return
                     elif context == "tag":
-                        returnval = self.connector.operate(self.viewtagposts, (given_id, self.offset, self.limit))
-                        if(isinstance(returnval, list)): 
+                        returnval = self.connector.operate(
+                            self.viewtagposts, (given_id, self.offset, self.limit))
+                        if(isinstance(returnval, list)):
                             for val in returnval:
-                                print(val)                    
-                            if returnval == [] or len(returnval) < 10: 
-                                print ("End of results")
-                                break
+                                print(val)
+                            if returnval == [] or len(returnval) < 10:
+                                print("End of results")
+                                return
                 userstring = input("<ENTER>/\'back\': ")
                 self.offset += 10
-                continue
+                return
             if userstring == "exit":
                 self.exit()
             if userstring == "back":
                 print("Exiting explorer")
                 return
-    
+
     def new(self, verifylist):
         if verifylist[1] == "post":
             if len(verifylist) < 3:
@@ -274,12 +286,29 @@ class Browser:
         now = datetime.datetime.now()
         newbody = ""
         newbody = input("Enter Post Body: ")
+        newtags = input("Enter Post Tags as <Tag1,Tag2,Tag3...>: ")
+        newtags = newtags.split(',')
         newid = self.connector.operate(self._newpostid, None)
         newid = newid[0][0]
         newid += 1
         newpost = (newid, now, now, 0, 0, 0, newtitle, newbody)
         self.connector.operate(self._newpost, newpost)
         self.connector.operate(self._newposted, (self.id, newid))
+        string = "INSERT INTO Tagged (tag_id, post_id) VALUES "
+        tuples = ()
+        i = 0
+        for tag in newtags:
+            i += 1
+            dbtag = self.connector.operate(self._findtagid, (tag,))
+            print(dbtag)
+            print("Adding tag_id: {0}, post_id {1} to Tagged".format(dbtag[0][0],newid))
+            string += "(%s, %s)"
+            tuples += dbtag[0][0],newid
+            if i < len(newtags):
+                string += ","
+        print(tuples)
+        self.connector.operate(string, tuples)
+        print(self.connector.operate("SELECT * FROM Tagged WHERE Post_id = {0}".format(newid),None))
         print("Created new post with ID {0}".format(newid))
 
     def newsubpost(self, verifylist):
