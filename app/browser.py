@@ -16,7 +16,9 @@ class Browser:
         self.viewcomments = """SELECT thread.post_id, comments.comment_id, comments.score, comments.creation_date, comments.text 
                             FROM Comments, Thread, Posts WHERE posts.post_id = (%s) AND posts.post_id = thread.post_id AND thread.comment_id = comments.comment_id 
                             """
-        self.viewtag = "SELECT tag_id, tag_name FROM Tags WHERE tag_id = (%s)"
+        self.viewcommenter = "SELECT users.user_name FROM Commented, Users WHERE commented.comment_id = (%s) AND commented.user_id = users.user_id"
+        self.confirmtag = "SELECT tags.tag_name, posts.post_id, posts.title FROM Tags, Posts, Tagged WHERE tags.tag_id = (%s) AND tags.tag_id = tagged.tag_id AND tagged.post_id = posts.post_id LIMIT 5"
+        self.viewtagposts = "SELECT tags.tag_name, posts.post_id, posts.title FROM Tags, Posts, Tagged WHERE tags.tag_id = (%s) AND tags.tag_id = tagged.tag_id AND tagged.post_id = posts.post_id OFFSET (%s) LIMIT (%s)"
         self.offset = 0
         self.limit = 10
         self.divider = "--------------------------------------------------------------------------------------"
@@ -91,7 +93,7 @@ class Browser:
                 if(isinstance(returnval, list)): 
                     for val in returnval:
                         print(val)                    
-                    if returnval == []: 
+                    if returnval == [] or len(returnval) <= 10: 
                         print ("End of results")
                         break
                 userstring = input("<ENTER>/\'back\': ")
@@ -134,6 +136,7 @@ class Browser:
 
     def printcomments(self, comments, indent):
         for row in comments:
+            commentuser = self.connector.operate(self.viewcommenter, (row[1],))
             indentstring = ""
             for i in range(0,indent):
                 indentstring += "\t"
@@ -141,7 +144,7 @@ class Browser:
             body = wrapper.wrap(row[4])
             for line in body:
                 print (line)
-            print("{0}By:\t{1}\t\tScore: {2}".format(indentstring, "TEST", row[2]))
+            print("{0}By:\t{1}\t\tScore: {2}".format(indentstring, commentuser[0][0], row[2]))
             print("{0}Posted: {1}".format(indentstring, row[3]))
             print(self.divider)
 
@@ -149,17 +152,14 @@ class Browser:
 
     def view(self, context, given_id):
         print("Viewing {0} with ID {1}".format(context, given_id))
-        #infostring = "<ENTER> for more results, \'back\' to return to command line"
         self.offset = 0
 
         if context == "user":
             inputstring = self.viewuser
         elif context == "post":
-            #print(infostring)
             inputstring = self.viewpost
         elif context == "tag":
-            #print(infostring)
-            inputstring = self.viewtag
+            inputstring = self.confirmtag
         else:
             print ("Can't view {0}".format(context))
             return
@@ -199,8 +199,13 @@ class Browser:
                             self.printcomments(comments, 2)
                         break
                     elif context == "tag":
-                        print("Still needs to be implemented...")
-                        break
+                        returnval = self.connector.operate(self.viewtagposts, (given_id, self.offset, self.limit))
+                        if(isinstance(returnval, list)): 
+                            for val in returnval:
+                                print(val)                    
+                            if returnval == [] or len(returnval) <= 10: 
+                                print ("End of results")
+                                break
                 userstring = input("<ENTER>/\'back\': ")
                 self.offset += 10
                 continue
@@ -209,43 +214,3 @@ class Browser:
             if userstring == "back":
                 print("Exiting explorer")
                 return
-
-        """if userstring == "":
-            returnval = self.connector.operate(inputstring, given_id)
-            print(returnval)
-            if(isinstance(returnval, list)):       
-                if returnval == []: 
-                    print ("End of results")
-                    return
-                if context == "user":
-                    userbadges = self.connector.operate(self.userbadges, (given_id, given_id))
-                    badges = []
-                    for badge in userbadges:
-                        badges += badge
-                    self.printuser(returnval[0], badges)
-                    return
-                elif context == "post":
-                    subposts = self.connector.operate(self.viewsubposts, given_id)
-                    postuser = self.connector.operate(self.viewposter, (returnval[0][6],))
-                    if postuser == []:
-                        postuser = "User not found with Id {0}".format(given_id)
-                    else:
-                        postuser = postuser[0][0]
-                        print(postuser)
-                    self.printpost(returnval[0], postuser, 0)
-                    for post in subposts:
-                        subpostuser = self.connector.operate(self.viewposter, (post[6],))
-                        if subpostuser == []:
-                            subpostuser = "User not found"
-                        else:
-                            subpostuser = subpostuser[0][0]
-                        self.printpost(post, subpostuser, 1)
-                        comments = self.connector.operate(self.viewcomments, (post[6],))
-                        self.printcomments(comments, 2)
-                elif context == "tag":
-                    print("Still needs to be implemented...")
-        if userstring == "exit":
-            self.exit()
-        if userstring == "back":
-            print("Exiting explorer")
-            return"""
