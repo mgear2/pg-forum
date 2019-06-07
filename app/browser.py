@@ -95,35 +95,35 @@ class Browser:
     def commandrunner(self):
         while True:
             userstring = input("Enter Command: ")
-
             verify = userstring.split(' ')
 
             if userstring == "":
                 continue
-            if userstring == "exit":
+            elif userstring == "exit":
                 self.exit()
-            if userstring == "query tool" or userstring == "sqlrunner":
+            elif (userstring == "query tool" 
+                    or userstring == "sqlrunner"):
                 self.sqlrunner()
                 continue
-            if verify[0] == "explore":
+            elif verify[0] == "explore":
                 if len(verify) < 2:
                     print("Please define a context to explore")
                     continue
                 self.explore(verify[1])
                 continue
-            if verify[0] == "view":
+            elif verify[0] == "view":
                 if len(verify) < 3:
                     print("Please define both a context and an id to view")
                     continue
                 self.view(verify[1], verify[2])
                 continue
-            if verify[0] == "new":
+            elif verify[0] == "new":
                 if len(verify) < 2:
                     print("Please define a context for new")
                     continue
                 self.new(verify)
                 continue
-            if verify[0] == "delete":
+            elif verify[0] == "delete":
                 if len(verify) < 2:
                     print("Please define a context for delete")
                     continue
@@ -222,7 +222,8 @@ class Browser:
     def printcomments(self, comments, indent):
         for row in comments:
             commentuser = self.connector.operate(self.viewcommenter, (row[1],))
-            if isinstance(commentuser, list) == False or commentuser == []:
+            if (isinstance(commentuser, list) == False 
+                    or commentuser == []):
                 commentuser = "Not found"
             else:
                 commentuser = commentuser[0][0]
@@ -254,66 +255,55 @@ class Browser:
             print("Can't view {0}".format(context))
             return
 
-        userstring = ""
-        if True:
-            if userstring == "":
-                returnval = self.connector.operate(inputstring, (given_id,))
+        returnval = self.connector.operate(inputstring, (given_id,))
+        if(isinstance(returnval, list)):
+            if returnval == []:
+                print("No results")
+                return
+            if context == "user":
+                userbadges = self.connector.operate(
+                    self.userbadges, (given_id, given_id))
+                badges = []
+                for badge in userbadges:
+                    badges += badge
+                self.printuser(returnval[0], badges)
+                return
+            elif context == "post":
+                subposts = self.connector.operate(
+                    self.viewsubposts, (given_id,))
+                postuser = self.connector.operate(
+                    self.viewposter, (returnval[0][6],))
+                if postuser == []:
+                    postuser = "User not found with Id {0}".format(
+                        given_id)
+                else:
+                    postuser = postuser[0][0]
+                self.printpost(returnval[0], postuser, 0)
+                comments = (self.connector.operate(
+                    self.viewcomments, (given_id,)))
+                self.printcomments(comments, 2)
+                for post in subposts:
+                    subpostuser = self.connector.operate(
+                        self.viewposter, (post[6],))
+                    if subpostuser == []:
+                        subpostuser = "User not found"
+                    else:
+                        subpostuser = subpostuser[0][0]
+                    self.printpost(post, subpostuser, 1)
+                    comments = self.connector.operate(
+                        self.viewcomments, (post[6],))
+                    self.printcomments(comments, 2)
+                return
+            elif context == "tag":
+                returnval = self.connector.operate(
+                    self.viewtagposts, 
+                    (given_id, self.offset, self.limit))
                 if(isinstance(returnval, list)):
-                    if returnval == []:
+                    for val in returnval:
+                        print(val)
+                    if returnval == [] or len(returnval) < 10:
                         print("End of results")
                         return
-                    if context == "user":
-                        userbadges = self.connector.operate(
-                            self.userbadges, (given_id, given_id))
-                        badges = []
-                        for badge in userbadges:
-                            badges += badge
-                        self.printuser(returnval[0], badges)
-                        return
-                    elif context == "post":
-                        subposts = self.connector.operate(
-                            self.viewsubposts, (given_id,))
-                        postuser = self.connector.operate(
-                            self.viewposter, (returnval[0][6],))
-                        if postuser == []:
-                            postuser = "User not found with Id {0}".format(
-                                given_id)
-                        else:
-                            postuser = postuser[0][0]
-                        self.printpost(returnval[0], postuser, 0)
-                        comments = (self.connector.operate(
-                            self.viewcomments, (given_id,)))
-                        self.printcomments(comments, 2)
-                        for post in subposts:
-                            subpostuser = self.connector.operate(
-                                self.viewposter, (post[6],))
-                            if subpostuser == []:
-                                subpostuser = "User not found"
-                            else:
-                                subpostuser = subpostuser[0][0]
-                            self.printpost(post, subpostuser, 1)
-                            comments = self.connector.operate(
-                                self.viewcomments, (post[6],))
-                            self.printcomments(comments, 2)
-                        return
-                    elif context == "tag":
-                        returnval = self.connector.operate(
-                            self.viewtagposts, 
-                            (given_id, self.offset, self.limit))
-                        if(isinstance(returnval, list)):
-                            for val in returnval:
-                                print(val)
-                            if returnval == [] or len(returnval) < 10:
-                                print("End of results")
-                                return
-                userstring = input("<ENTER>/\'back\': ")
-                self.offset += 10
-                return
-            if userstring == "exit":
-                self.exit()
-            if userstring == "back":
-                print("Exiting explorer")
-                return
 
     def new(self, verifylist):
         if verifylist[1] == "post":

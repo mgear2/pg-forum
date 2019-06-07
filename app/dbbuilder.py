@@ -72,7 +72,9 @@ class DBbuilder():
         self.createsubcomments = ("CREATE TABLE Subcomments ("
             "parent_id int REFERENCES Comments(comment_id),"
             "child_id int REFERENCES Comments(comment_id))")
-        self.newpostproc = ("CREATE OR REPLACE PROCEDURE newpost("
+        # stored procedure creation statements
+        self.newpostproc = (
+            "CREATE OR REPLACE PROCEDURE newpost("
                 "post_id int, creation_date timestamp, last_edit_date timestamp,"
                 "favorite_count int, view_count int, score int,"
                 "title varchar(100), body varchar(5000))"
@@ -99,6 +101,26 @@ class DBbuilder():
         self.user_names = []
         self.comment_ids = []
         self.badge_ids = []
+
+    def build(self):
+         # Entity tables
+        self.buildtags()
+        self.buildusers()
+        self.buildposts()
+        self.buildcomments()
+        self.buildbadges()
+
+        # Relationship tables
+        self.buildposted()
+        self.buildtagged()
+        self.buildcommented()
+        self.buildthread()
+        self.builddecorated()
+        self.buildsubposts()
+        self.buildsubcomments()
+        
+        self.createadmin()
+        self.connector.operate(dbbuilder.newpostproc, None)
 
     def createadmin(self):
         adminstring = ("INSERT INTO Users ("
@@ -469,32 +491,11 @@ class DBbuilder():
         self.count("Decorated")
 
 if __name__ == '__main__':
-    # create a Connector instance and connect to the database
     connector = Connector()
     connector.connect()
 
-    # initialize dbbuilder
     lims = [100, 200, 400, 5000]
     dbbuilder = DBbuilder(connector, lims)
-    
-    # create entity tables
-    dbbuilder.buildtags()
-    dbbuilder.buildusers()
-    dbbuilder.buildposts()
-    dbbuilder.buildcomments()
-    dbbuilder.buildbadges()
+    dbbuilder.build()
 
-    # create relationship tables
-    dbbuilder.buildposted()
-    dbbuilder.buildtagged()
-    dbbuilder.buildcommented()
-    dbbuilder.buildthread()
-    dbbuilder.builddecorated()
-    dbbuilder.buildsubposts()
-    dbbuilder.buildsubcomments()
-
-    dbbuilder.createadmin()
-    connector.operate(dbbuilder.newpostproc, None)
-
-    # disconnect from the database
     connector.disconnect()
