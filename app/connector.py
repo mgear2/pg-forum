@@ -13,7 +13,7 @@ class Connector:
         parser = ConfigParser()
         # read config file
         parser.read(self.filename)
-        # if the file/section is found, parse the contents into a dictionary variable
+        # parse the config file contents into a dictionary variable
         self.params = {}
         if parser.has_section(self.section):
             # each line of the .ini file can be used as a key-value pair
@@ -21,7 +21,8 @@ class Connector:
             for pair in pairs:
                 self.params[pair[0]] = pair[1]
         else:
-            raise Exception('Section {0} not found in the {1} file'.format(self.section, self.filename))
+            raise Exception('Section {0} not found in the {1} file'
+                            .format(self.section, self.filename))
 
     def connect(self):
         self.connection = None
@@ -45,18 +46,18 @@ class Connector:
 
     def operate(self, string, builder):
         try: 
-            # differentiate between commands with builder variable (tuples for format string) and commands without
+            # Some commands have a builder variable (tuples for format string)
             if builder == None:
                 self.cursor.execute(string)
             else:
                 self.cursor.execute(string, builder)
             self.connection.commit()
-            # return the results of the statement
             returnval = self.cursor.fetchall()
             return returnval
         except (Exception, psycopg2.DatabaseError) as error:
             if str(error) == "no results to fetch":
                 return
-            print("Caught: on {0} with arguments {1};\nERROR: {2}".format(string, str(builder), str(error)))
+            print("Caught: on {0} with arguments {1};\nERROR: {2}"
+                .format(string, str(builder), str(error)))
             self.connection.rollback()
             return error

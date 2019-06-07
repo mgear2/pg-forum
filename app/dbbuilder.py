@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 from connector import Connector
 import psycopg2
-import datetime
+from datetime import datetime
 import re
 
 class DBbuilder():
@@ -10,36 +10,90 @@ class DBbuilder():
         # reference for connector object
         self.connector = connector
         # define roots for each xml file
-        self.tagsroot = ET.parse('app/data/woodworking.stackexchange.com/Tags.xml').getroot()
-        self.usersroot = ET.parse('app/data/woodworking.stackexchange.com/Users.xml').getroot()
-        self.postsroot = ET.parse('app/data/woodworking.stackexchange.com/Posts.xml').getroot()
-        self.commentsroot = ET.parse('app/data/woodworking.stackexchange.com/Comments.xml').getroot()
-        self.badgesroot = ET.parse('app/data/woodworking.stackexchange.com/Badges.xml').getroot()
+        self.tagsroot = ET.parse(
+            'app/data/woodworking.stackexchange.com/Tags.xml').getroot()
+        self.usersroot = ET.parse(
+            'app/data/woodworking.stackexchange.com/Users.xml').getroot()
+        self.postsroot = ET.parse(
+            'app/data/woodworking.stackexchange.com/Posts.xml').getroot()
+        self.commentsroot = ET.parse(
+            'app/data/woodworking.stackexchange.com/Comments.xml').getroot()
+        self.badgesroot = ET.parse(
+            'app/data/woodworking.stackexchange.com/Badges.xml').getroot()
          # entity table creation statements
-        self.createtags = 'CREATE TABLE Tags (tag_id int PRIMARY KEY, tag_name varchar({0}))'.format(lims[0])
-        self.createusers = 'CREATE TABLE Users (user_id int PRIMARY KEY, user_name varchar({0}), location varchar({0}), reputation int, creation_date timestamp, last_active_date timestamp, about varchar({1}))'.format(lims[0], lims[3])
-        self.createposts = 'CREATE TABLE Posts (post_id int PRIMARY KEY, creation_date timestamp, last_edit_date timestamp, favorite_count int, view_count int, score int, title varchar({0}), body varchar({1}))'.format(lims[0], lims[3])
-        self.createcomments = 'CREATE TABLE Comments (comment_id int PRIMARY KEY, score int, creation_date timestamp, text varchar({0}))'.format(lims[3])
-        self.createbadges = 'CREATE TABLE Badges (badge_id int PRIMARY KEY, badge_name varchar({0}))'.format(lims[0])
+        self.createtags = ("CREATE TABLE Tags ("
+            "tag_id int PRIMARY KEY,"
+            "tag_name varchar({0}))".format(lims[0]))
+        self.createusers = ("CREATE TABLE Users ("
+            "user_id int PRIMARY KEY,"
+            "user_name varchar({0}),"
+            "location varchar({0}),"
+            "reputation int,"
+            "creation_date timestamp,"
+            "last_active_date timestamp,"
+            "about varchar({1}))".format(lims[0], lims[3]))
+        self.createposts = ("CREATE TABLE Posts ("
+            "post_id int PRIMARY KEY,"
+            "creation_date timestamp,"
+            "last_edit_date timestamp,"
+            "favorite_count int,"
+            "view_count int,"
+            "score int,"
+            "title varchar({0})," 
+            "body varchar({1}))".format(lims[0], lims[3]))
+        self.createcomments = ("CREATE TABLE Comments ("
+            "comment_id int PRIMARY KEY,"
+            "score int,"
+            "creation_date timestamp,"
+            "text varchar({0}))".format(lims[3]))
+        self.createbadges = ("CREATE TABLE Badges ("
+            "badge_id int PRIMARY KEY,"
+            "badge_name varchar({0}))".format(lims[0]))
         # relationship table creation statements
-        self.createposted = 'CREATE TABLE Posted (user_id int REFERENCES Users(user_id), post_id int REFERENCES Posts(post_id))'
-        self.createtagged = 'CREATE TABLE Tagged (tag_id int REFERENCES Tags(tag_id), post_id int REFERENCES Posts(post_id))'
-        self.createcommented = 'CREATE TABLE Commented (user_id int REFERENCES Users(user_id), comment_id int REFERENCES Comments(comment_id))'
-        self.createthread = 'CREATE TABLE Thread (post_id int REFERENCES Posts(post_id), comment_id int REFERENCES Comments(comment_id))'
-        self.createdecorated = 'CREATE TABLE Decorated (user_id int REFERENCES Users(user_id), badge_id int REFERENCES Badges(badge_id), date_awarded timestamp)'
-        self.createsubposts = 'CREATE TABLE Subposts (parent_id int REFERENCES Posts(post_id), child_id int REFERENCES Posts(post_id))'
-        self.createsubcomments = 'CREATE TABLE Subcomments (parent_id int REFERENCES Comments(comment_id), child_id int REFERENCES Comments(comment_id))'
-
-        self.createstoredproc = "CREATE OR REPLACE PROCEDURE newpost(post_id int, creation_date timestamp, last_edit_date timestamp, \
-                                favorite_count int, view_count int, score int, title varchar(100), body varchar(5000)) AS $$\
-                                BEGIN\
-                                INSERT INTO Posts (post_id, creation_date, last_edit_date, favorite_count, view_count, score, title, body)\
-                                     VALUES (post_id, creation_date, last_edit_date, favorite_count, view_count, score, title, body);\
-                                END;\
-                                $$ LANGUAGE plpgsql;"
-        # define limit values
+        self.createposted = ("CREATE TABLE Posted ("
+            "user_id int REFERENCES Users(user_id),"
+            "post_id int REFERENCES Posts(post_id))")
+        self.createtagged = ("CREATE TABLE Tagged ("
+            "tag_id int REFERENCES Tags(tag_id),"
+            "post_id int REFERENCES Posts(post_id))")
+        self.createcommented = ("CREATE TABLE Commented ("
+            "user_id int REFERENCES Users(user_id),"
+            "comment_id int REFERENCES Comments(comment_id))")
+        self.createthread = ("CREATE TABLE Thread ("
+            "post_id int REFERENCES Posts(post_id),"
+            "comment_id int REFERENCES Comments(comment_id))")
+        self.createdecorated = ("CREATE TABLE Decorated ("
+            "user_id int REFERENCES Users(user_id),"
+            "badge_id int REFERENCES Badges(badge_id),"
+            "date_awarded timestamp)")
+        self.createsubposts = ("CREATE TABLE Subposts ("
+            "parent_id int REFERENCES Posts(post_id),"
+            "child_id int REFERENCES Posts(post_id))")
+        self.createsubcomments = ("CREATE TABLE Subcomments ("
+            "parent_id int REFERENCES Comments(comment_id),"
+            "child_id int REFERENCES Comments(comment_id))")
+        self.newpostproc = ("CREATE OR REPLACE PROCEDURE newpost("
+                "post_id int, creation_date timestamp, last_edit_date timestamp,"
+                "favorite_count int, view_count int, score int,"
+                "title varchar(100), body varchar(5000))"
+            "AS $$"
+            "BEGIN "
+            "INSERT INTO Posts ("
+                "post_id, creation_date, last_edit_date,"
+                "favorite_count, view_count, score,"
+                "title, body)"
+            "VALUES ("
+                "post_id, creation_date, last_edit_date,"
+                "favorite_count, view_count, score,"
+                "title, body);"
+            "END;"
+            "$$ LANGUAGE plpgsql;")
+        # Limits are used to prevent invalid insertions and/or limit DB size. 
         self.lims = lims
-        # keys referenced by foreign keys need to be checked to ensure that insert queries will not fail because on a missing pkey. Storing these values client side increases build speed. 
+        self.datefmt = '%Y-%m-%dT%H:%M:%S.%f'
+        # Insert queries can fail en masse because of a missing pkey. 
+        # Storing and checking these values prevents this.
+        # Doing this client side increases build speed. 
         self.post_ids = []
         self.user_ids = []
         self.user_names = []
@@ -47,12 +101,20 @@ class DBbuilder():
         self.badge_ids = []
 
     def createadmin(self):
-        adminstring = "INSERT INTO Users (user_id, user_name, location, reputation, creation_date, last_active_date, about) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        tuples = -999, "Admin", "Wherever", 999999, datetime.datetime.now(), datetime.datetime.now(), "This is too much responsibility"
-        self.connector.operate(adminstring, tuples)
+        adminstring = ("INSERT INTO Users ("
+            "user_id, user_name, location, reputation,"
+            "creation_date, last_active_date,"
+            "about)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s)")
+        admintuples = (
+            -999, "Admin", "Wherever", 999999, 
+            datetime.now(), datetime.now(), 
+            "This is too much responsibility")
+        self.connector.operate(adminstring, admintuples)
 
     def count(self, table):
-        count = self.connector.operate("SELECT COUNT(*) FROM {0}".format(table), None)
+        countstring = "SELECT COUNT(*) FROM {0}".format(table)
+        count = self.connector.operate(countstring, None)
         count = (count[0])[0]
         print ("Initialization for table {0} complete with {1} rows.".format(table, count))
 
@@ -60,7 +122,7 @@ class DBbuilder():
         print ("Initializing table Tags...this may take a few minutes")
         self.connector.operate(self.createtags, None)
 
-        string = "INSERT INTO Tags (tag_id, tag_name) VALUES "
+        tagstring = "INSERT INTO Tags (tag_id, tag_name) VALUES "
         tuples = ()
         i = 0
 
@@ -73,19 +135,21 @@ class DBbuilder():
             if len(str(tag_name)) > self.lims[0]:
                 continue
             if i > 0:
-                string += ","
-            string += "(%s, %s)"
+                tagstring += ","
+            tagstring += "(%s, %s)"
             tuples += tag_id, tag_name
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(tagstring, tuples)
         self.count("Tags")
 
     def buildusers(self):
         print ("Initializing table Users...this may take a few minutes")
         self.connector.operate(self.createusers, None)
 
-        string = "INSERT INTO Users (user_id, user_name, location, reputation, creation_date, last_active_date, about) VALUES "
+        userstring = ("INSERT INTO Users ("
+            "user_id, user_name, location, reputation,"
+            "creation_date, last_active_date, about) VALUES ")
         tuples = ()
         i = 0
 
@@ -105,17 +169,22 @@ class DBbuilder():
             if user_name in self.user_names:
                 break
             if i > 0:
-                string += ","
-            string += "(%s, %s, %s, %s, %s, %s, %s)"
-            tuples += user_id, user_name, location, reputation, datetime.datetime.strptime(creation_date, '%Y-%m-%dT%H:%M:%S.%f'), datetime.datetime.strptime(last_active_date, '%Y-%m-%dT%H:%M:%S.%f'), about
+                userstring += ","
+            userstring += "(%s, %s, %s, %s, %s, %s, %s)"
+            tuples += (
+                user_id, user_name, location, reputation,
+                datetime.strptime(creation_date, self.datefmt),
+                datetime.strptime(last_active_date, self.datefmt),
+                about)
             self.user_ids.append(int(user_id))
             self.user_names.append(user_name)
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(userstring, tuples)
         self.count("Users")
 
-    # cool little function from https://stackoverflow.com/questions/9662346/python-code-to-remove-html-tags-from-a-string using regex
+    # Regex function from stackoverflow
+    # https://stackoverflow.com/questions/9662346/python-code-to-remove-html-tags-from-a-string
     def cleanhtml(self, raw_html):
         cleanr = re.compile('<.*?>')
         cleantext = re.sub(cleanr, '', raw_html)
@@ -125,7 +194,10 @@ class DBbuilder():
         print ("Initializing table Posts...this may take a few minutes")
         self.connector.operate(self.createposts, None)
 
-        string = "INSERT INTO Posts (post_id, creation_date, last_edit_date, favorite_count, view_count, score, title, body) VALUES "
+        poststring = ("INSERT INTO Posts ("
+            "post_id,"
+            "creation_date, last_edit_date,"
+            "favorite_count, view_count, score, title, body) VALUES ")
         tuples = ()
         i = 0
 
@@ -147,23 +219,28 @@ class DBbuilder():
             if len(str(title)) > lims[0] or len(str(body)) > lims[3]:
                 continue
             if i > 0:
-                string += ","
+                poststring += ","
             if last_edit_date == None:
                 last_edit_date = creation_date    
-            string += "(%s, %s, %s, %s, %s, %s, %s, %s)"
-            tuples += post_id, datetime.datetime.strptime(creation_date, '%Y-%m-%dT%H:%M:%S.%f'), datetime.datetime.strptime(last_edit_date, '%Y-%m-%dT%H:%M:%S.%f'), favorite_count, view_count, score, title, body
+            poststring += "(%s, %s, %s, %s, %s, %s, %s, %s)"
+            tuples += (
+                post_id, 
+                datetime.strptime(creation_date, self.datefmt), 
+                datetime.strptime(last_edit_date, self.datefmt), 
+                favorite_count, view_count, score, title, body)
             self.post_ids.append(int(post_id))
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(poststring, tuples)
         self.count("Posts")
 
-    # due to the the design of stackexchange sites and resulting data, subposts must be handled separately from comments and subcomments
+    # Subposts must be handled separately from comments and subcomments.
+    # This is an artifact of stackexchange site design. 
     def buildsubposts(self):
         print ("Initializing table Subposts...this may take a few minutes")
         self.connector.operate(self.createsubposts, None)
 
-        string = "INSERT INTO Subposts (parent_id, child_id) VALUES "
+        subpoststring = "INSERT INTO Subposts (parent_id, child_id) VALUES "
         tuples = ()
         i = 0
 
@@ -172,22 +249,24 @@ class DBbuilder():
             child_id = type_tag.get('Id')
             if int(child_id) > self.lims[2]:
                 break
-            if parent_id == None or int(parent_id) not in self.post_ids or int(child_id) not in self.post_ids:
+            if (parent_id == None 
+                    or int(parent_id) not in self.post_ids 
+                    or int(child_id) not in self.post_ids):
                 continue
             if i > 0:
-                string += ","
-            string += "(%s, %s)"
+                subpoststring += ","
+            subpoststring += "(%s, %s)"
             tuples += parent_id, child_id
             i += 1
         
-        self.connector.operate(string, tuples)
+        self.connector.operate(subpoststring, tuples)
         self.count("Subposts")
 
     def buildposted(self):
         print ("Initializing table Posted...this may take a few minutes")
         self.connector.operate(self.createposted, None)
 
-        string = "INSERT INTO Posted (user_id, post_id) VALUES "
+        postedstring = "INSERT INTO Posted (user_id, post_id) VALUES "
         tuples = ()
         i = 0
 
@@ -195,26 +274,28 @@ class DBbuilder():
             post_id = type_tag.get('Id')
             owner_id = type_tag.get('OwnerUserId')
 
-            if(owner_id == None):
+            if owner_id == None:
                 continue
             if int(post_id) > self.lims[2]:
                 break
-            if int(post_id) not in self.post_ids or int(owner_id) not in self.user_ids:
+            if (int(post_id) not in self.post_ids 
+                    or int(owner_id) not in self.user_ids):
                 continue
             if i > 0:
-                string += ","
-            string += "(%s, %s)"
+                postedstring += ","
+            postedstring += "(%s, %s)"
             tuples += owner_id, post_id
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(postedstring, tuples)
         self.count("Posted")
 
     def buildtagged(self):
         print ("Initializing table Tagged...this may take a few minutes")
         self.connector.operate(self.createtagged, None)
 
-        string = "INSERT INTO Tagged (tag_id, post_id) VALUES "
+        taggedstring = "INSERT INTO Tagged (tag_id, post_id) VALUES "
+        gettag = "SELECT tag_id FROM Tags WHERE tag_name = \'{0}\'"
         tuples = ()
         i = 0
 
@@ -237,25 +318,25 @@ class DBbuilder():
                         list(tag)
                         tag = tag[:(len(tag)-1)]
                         tag = ''.join(tag)
-
-                    tag_id = self.connector.operate('SELECT tag_id FROM Tags WHERE tag_name = \'{0}\''.format(tag), None)
+                    tag_id = self.connector.operate(gettag.format(tag), None)
                     if tag_id == []:
                         continue
                     tag_id = ((tag_id[0])[0])
                     if i > 0:
-                        string += ","
-                    string += "(%s, %s)"
+                        taggedstring += ","
+                    taggedstring += "(%s, %s)"
                     tuples += tag_id, post_id
                     i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(taggedstring, tuples)
         self.count( "Tagged")
 
     def buildcomments(self):
         print ("Initializing table Comments...this may take a few minutes")
         self.connector.operate(self.createcomments, None)
 
-        string = "INSERT INTO Comments (comment_id, score, creation_date, text) VALUES "
+        commentstring = ("INSERT INTO Comments ("
+            "comment_id, score, creation_date, text) VALUES ")
         tuples = ()
         i = 0
 
@@ -267,17 +348,19 @@ class DBbuilder():
             if int(comment_id) > self.lims[2]:
                 break
             if i > 0:
-                string += ","
-            string += "(%s, %s, %s, %s)"
-            tuples += comment_id, score, datetime.datetime.strptime(creation_date, '%Y-%m-%dT%H:%M:%S.%f'), text
+                commentstring += ","
+            commentstring += "(%s, %s, %s, %s)"
+            tuples += (
+                comment_id, score, 
+                datetime.strptime(creation_date, self.datefmt), text)
             self.comment_ids.append(int(comment_id))
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(commentstring, tuples)
         self.count("Comments")
 
-    # stackexhange sites do not account/allow for nested comments
-    # this app implements a table to allow for infinitely nested subcomments, but these will not be derived from stackexchange data
+    # Stackexhange sites do not account/allow for nested comments.
+    # This app implements a table to allow for infinitely nested subcomments.
     def buildsubcomments(self):
         print ("Initializing table Subcomments...this may take a few minutes")
         self.connector.operate(self.createsubcomments, None)
@@ -287,7 +370,7 @@ class DBbuilder():
         print ("Initializing table Commented...this may take a few minutes")
         self.connector.operate(self.createcommented, None)
 
-        string = "INSERT INTO Commented (user_id, comment_id) VALUES  "
+        commentedstring = "INSERT INTO Commented (user_id, comment_id) VALUES  "
         tuples = ()
         i = 0
 
@@ -296,22 +379,23 @@ class DBbuilder():
             user_id = type_tag.get('UserId')
             if int(comment_id) > self.lims[2]:
                 break
-            if int(user_id) not in self.user_ids or int(comment_id) not in self.comment_ids:
+            if (int(user_id) not in self.user_ids 
+                    or int(comment_id) not in self.comment_ids):
                 continue
             if i > 0:
-                string += ","
-            string += "(%s, %s)"
+                commentedstring += ","
+            commentedstring += "(%s, %s)"
             tuples += user_id, comment_id
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(commentedstring, tuples)
         self.count("Commented")
 
     def buildthread(self):
         print ("Initializing table Thread...this may take a few minutes")
         self.connector.operate(self.createthread, None)
 
-        string = "INSERT INTO Thread (post_id, comment_id) VALUES "
+        threadstring = "INSERT INTO Thread (post_id, comment_id) VALUES "
         tuples = ()
         i = 0
 
@@ -320,22 +404,23 @@ class DBbuilder():
             post_id = type_tag.get('PostId')
             if int(comment_id) > self.lims[2]:
                 break
-            if int(comment_id) not in self.comment_ids or int(post_id) not in self.post_ids:
+            if (int(comment_id) not in self.comment_ids 
+                    or int(post_id) not in self.post_ids):
                 continue
             if i > 0:
-                string += ","
-            string += "(%s, %s)"
+                threadstring += ","
+            threadstring += "(%s, %s)"
             tuples += post_id, comment_id
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(threadstring, tuples)
         self.count("Thread")
 
     def buildbadges(self):
         print ("Initializing table Badges...this may take a few minutes")
         self.connector.operate(self.createbadges, None)
 
-        string = "INSERT INTO Badges (badge_id, badge_name) VALUES "
+        badgestring = "INSERT INTO Badges (badge_id, badge_name) VALUES "
         tuples = ()
         i = 0
 
@@ -345,20 +430,21 @@ class DBbuilder():
             if int(badge_id) > self.lims[2]:
                 break
             if i > 0:
-                string += ","
-            string += "(%s, %s)"
+                badgestring += ","
+            badgestring += "(%s, %s)"
             tuples += badge_id, badge_name
             self.badge_ids.append(int(badge_id))
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(badgestring, tuples)
         self.count("Badges")
 
     def builddecorated(self):
         print ("Initializing table Decorated...this may take a few minutes")
         self.connector.operate(self.createdecorated, None)
 
-        string = "INSERT INTO Decorated (user_id, badge_id, date_awarded) VALUES "
+        decoratedstring = ("INSERT INTO Decorated ("
+            "user_id, badge_id, date_awarded) VALUES ")
         tuples = ()
         i = 0
 
@@ -368,15 +454,18 @@ class DBbuilder():
             date_awarded = type_tag.get('Date')
             if int(badge_id) > self.lims[2]:
                 break
-            if int(user_id) not in self.user_ids or int(badge_id) not in self.badge_ids:
+            if (int(user_id) not in self.user_ids 
+                    or int(badge_id) not in self.badge_ids):
                 continue
             if i > 0:
-                string += ","
-            string += "(%s, %s, %s)"
-            tuples += user_id, badge_id, datetime.datetime.strptime(date_awarded, '%Y-%m-%dT%H:%M:%S.%f')
+                decoratedstring += ","
+            decoratedstring += "(%s, %s, %s)"
+            tuples += (
+                user_id, badge_id, 
+                datetime.strptime(date_awarded, self.datefmt))
             i += 1
 
-        self.connector.operate(string, tuples)
+        self.connector.operate(decoratedstring, tuples)
         self.count("Decorated")
 
 if __name__ == '__main__':
@@ -405,7 +494,7 @@ if __name__ == '__main__':
     dbbuilder.buildsubcomments()
 
     dbbuilder.createadmin()
-    connector.operate(dbbuilder.createstoredproc, None)
+    connector.operate(dbbuilder.newpostproc, None)
 
     # disconnect from the database
     connector.disconnect()

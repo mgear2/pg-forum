@@ -1,8 +1,8 @@
 # pylint: disable=import-error
+import sys
+import psycopg2
 from connector import Connector
 from browser import Browser
-import psycopg2
-import sys
 
 if __name__ == '__main__':
     # create a Connector instance and connect to the database
