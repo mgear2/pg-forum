@@ -168,8 +168,10 @@ class Browser:
         self.id = -999
         self.offset = 0
         self.limit = 10
-        self.divider = ("----------------------------------"
-            "---------------------------------------")
+        self.divider = (
+            "---------------------------------------"
+            "---------------------------------------"
+            )
 
     def exit(self):
         self.connector.disconnect()
