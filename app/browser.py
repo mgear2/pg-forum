@@ -7,81 +7,164 @@ import psycopg2
 class Browser:
     def __init__(self, connector):
         self.connector = connector
-        self.exploreusers = ("SELECT user_id, user_name, location "
-            "FROM Users OFFSET (%s) LIMIT (%s)")
-        self.exploreposts = ("SELECT post_id, title "
-            "FROM Posts WHERE title != 'None' OFFSET (%s) LIMIT (%s)")
-        self.exploretags = ("SELECT tag_id, tag_name "
-            "FROM Tags OFFSET (%s) LIMIT (%s)")
-        self.viewuser = ("SELECT users.user_id, user_name, location,"
+        self.exploreusers = (
+            "SELECT user_id, user_name, location "
+            "FROM Users "
+            "OFFSET (%s) LIMIT (%s)"
+            )
+        self.exploreposts = (
+            "SELECT post_id, title "
+            "FROM Posts "
+            "WHERE title != 'None' "
+            "OFFSET (%s) LIMIT (%s)"
+            )
+        self.exploretags = (
+            "SELECT tag_id, tag_name "
+            "FROM Tags "
+            "OFFSET (%s) LIMIT (%s)"
+            )
+        self.viewuser = (
+            "SELECT users.user_id, user_name, location,"
             "reputation, creation_date, last_active_date "
-            "FROM Users WHERE users.user_id = (%s)")
-        self.userbadges = ("SELECT badge_name "
-            "FROM Users, Decorated, Badges WHERE users.user_id = (%s) "
+            "FROM Users "
+            "WHERE users.user_id = (%s)"
+            )
+        self.userbadges = (
+            "SELECT badge_name "
+            "FROM Users, Decorated, Badges "
+            "WHERE users.user_id = (%s) "
             "AND decorated.user_id=(%s) "
-            "AND badges.badge_id=decorated.badge_id")
-        self.viewpost = ("SELECT creation_date, last_edit_date,"
+            "AND badges.badge_id=decorated.badge_id"
+            )
+        self.viewpost = (
+            "SELECT creation_date, last_edit_date,"
             "favorite_count, view_count, score, title, post_id, body "
-            "FROM posts WHERE post_id = (%s)")
-        self.viewposter = ("SELECT users.user_name "
+            "FROM posts "
+            "WHERE post_id = (%s)"
+            )
+        self.viewposter = (
+            "SELECT users.user_name "
             "FROM users, posted "
             "WHERE posted.post_id = (%s) "
-            "AND users.user_id=posted.user_id")
-        self.viewsubposts = ("SELECT creation_date, last_edit_date, "
+            "AND users.user_id=posted.user_id"
+            )
+        self.viewsubposts = (
+            "SELECT creation_date, last_edit_date, "
             "favorite_count, view_count, score, title, posts.post_id, body "
-            "FROM posts, subposts WHERE subposts.parent_id = (%s) "
-            "AND Posts.post_id = Subposts.child_id")
-        self.findparent = ("SELECT subposts.parent_id "
-            "FROM Subposts WHERE subposts.child_id = (%s)")
-        self.viewcomments = ("SELECT thread.post_id, comments.comment_id,"
+            "FROM posts, subposts "
+            "WHERE subposts.parent_id = (%s) "
+            "AND Posts.post_id = Subposts.child_id"
+            )
+        self.findparent = (
+            "SELECT subposts.parent_id "
+            "FROM Subposts "
+            "WHERE subposts.child_id = (%s)"
+            )
+        self.viewcomments = (
+            "SELECT thread.post_id, comments.comment_id,"
             "comments.score, comments.creation_date, comments.text "
             "FROM Comments, Thread, Posts "
             "WHERE posts.post_id = (%s) "
             "AND posts.post_id = thread.post_id "
-            "AND thread.comment_id = comments.comment_id")
-        self.viewcommenter = ("SELECT users.user_name "
+            "AND thread.comment_id = comments.comment_id"
+            )
+        self.viewcommenter = (
+            "SELECT users.user_name "
             "FROM Commented, Users "
             "WHERE commented.comment_id = (%s) "
-            "AND commented.user_id = users.user_id")
-        self.confirmtag = ("SELECT tags.tag_name, posts.post_id, posts.title "
-            "FROM Tags, Posts, Tagged WHERE tags.tag_id = (%s) "
+            "AND commented.user_id = users.user_id"
+            )
+        self.confirmtag = (
+            "SELECT tags.tag_name, posts.post_id, posts.title "
+            "FROM Tags, Posts, Tagged "
+            "WHERE tags.tag_id = (%s) "
             "AND tags.tag_id = tagged.tag_id "
-            "AND tagged.post_id = posts.post_id LIMIT 5")
-        self.viewtagposts = ("SELECT tags.tag_name, posts.post_id, posts.title "
-            "FROM Tags, Posts, Tagged WHERE tags.tag_id = (%s) "
+            "AND tagged.post_id = posts.post_id LIMIT 5"
+            )
+        self.viewtagposts = (
+            "SELECT tags.tag_name, posts.post_id, posts.title "
+            "FROM Tags, Posts, Tagged "
+            "WHERE tags.tag_id = (%s) "
             "AND tags.tag_id = tagged.tag_id "
-            "AND tagged.post_id = posts.post_id OFFSET (%s) LIMIT (%s)")
-        self._newpostid = "SELECT max(post_id) FROM Posts"
-        self._newposted = ("INSERT INTO Posted (user_id, post_id) "
-            "VALUES (%s, %s)")
-        self._newpost = "CALL newpost(%s, %s, %s, %s, %s, %s, %s, %s)"
-        self._posttag = "INSERT INTO Tagged (tag_id, post_id) VALUES (%s, %s)"
-        self._findtagid = ("SELECT tag_id, tag_name "
-            "FROM Tags WHERE tag_name = (%s)")
-        self._newsubpost = ("INSERT INTO Subposts (parent_id, child_id) "
-            "VALUES (%s, %s)")
-        self._newcomment = ("INSERT INTO Comments "
+            "AND tagged.post_id = posts.post_id OFFSET (%s) LIMIT (%s)"
+            )
+        self._newpostid = (
+            "SELECT max(post_id) "
+            "FROM Posts"
+            )
+        self._newposted = (
+            "INSERT INTO Posted "
+            "(user_id, post_id) "
+            "VALUES (%s, %s)"
+            )
+        self._newpost = (
+            "CALL newpost(%s, %s, %s, %s, %s, %s, %s, %s)"
+            )
+        self._posttag = (
+            "INSERT INTO Tagged "
+            "(tag_id, post_id) "
+            "VALUES (%s, %s)"
+            )
+        self._findtagid = (
+            "SELECT tag_id, tag_name "
+            "FROM Tags "
+            "WHERE tag_name = (%s)"
+            )
+        self._newsubpost = (
+            "INSERT INTO Subposts "
+            "(parent_id, child_id) "
+            "VALUES (%s, %s)"
+            )
+        self._newcomment = (
+            "INSERT INTO Comments "
             "(comment_id, score, creation_date, text) "
-            "VALUES (%s, %s, %s, %s)")
-        self._newcommentid = "SELECT max(comment_id) FROM Comments"
-        self._newcommented = ("INSERT INTO Commented "
-            "(user_id, comment_id) VALUES (%s, %s)")
-        self._newthread = ("INSERT INTO Thread "
-            "(post_id, comment_id) VALUES (%s, %s)")
-        self._deletefromtagged = ("DELETE FROM Tagged "
-            "WHERE Tagged.post_id = (%s)")
-        self._deletefromposts = ("DELETE FROM Posts "
-            "WHERE Posts.post_id=(%s)")
-        self._deletefromsubpost = ("DELETE FROM Subposts "
-            "WHERE parent_id = (%s) OR child_id = (%s)")
-        self._deletefromposted = ("DELETE FROM Posted "
-            "WHERE user_id = (%s) OR post_id = (%s)")
-        self._deletefromcommented = ("DELETE FROM Commented "
-            "WHERE comment_id = (%s)")
-        self._deletefromcomments = ("DELETE FROM Comments "
-            "WHERE comment_id = (%s)")
-        self._deletefromthread = ("DELETE FROM Thread "
-            "WHERE comment_id = (%s) OR post_id = (%s)")
+            "VALUES (%s, %s, %s, %s)"
+            )
+        self._newcommentid = (
+            "SELECT max(comment_id) "
+            "FROM Comments"
+            )
+        self._newcommented = (
+            "INSERT INTO Commented "
+            "(user_id, comment_id) "
+            "VALUES (%s, %s)"
+            )
+        self._newthread = (
+            "INSERT INTO Thread "
+            "(post_id, comment_id) "
+            "VALUES (%s, %s)"
+            )
+        self._deletefromtagged = (
+            "DELETE FROM Tagged "
+            "WHERE Tagged.post_id = (%s)"
+            )
+        self._deletefromposts = (
+            "DELETE FROM Posts "
+            "WHERE Posts.post_id=(%s)"
+            )
+        self._deletefromsubpost = (
+            "DELETE FROM Subposts "
+            "WHERE parent_id = (%s) "
+            "OR child_id = (%s)"
+            )
+        self._deletefromposted = (
+            "DELETE FROM Posted "
+            "WHERE user_id = (%s) "
+            "OR post_id = (%s)"
+            )
+        self._deletefromcommented = (
+            "DELETE FROM Commented "
+            "WHERE comment_id = (%s)"
+            )
+        self._deletefromcomments = (
+            "DELETE FROM Comments "
+            "WHERE comment_id = (%s)"
+            )
+        self._deletefromthread = (
+            "DELETE FROM Thread "
+            "WHERE comment_id = (%s) "
+            "OR post_id = (%s)"
+            )
         self.id = -999
         self.offset = 0
         self.limit = 10
@@ -143,8 +226,6 @@ class Browser:
                 print("Exiting Query Tool")
                 return
             returnval = self.connector.operate(userstring, None)
-            # print(userstring + ' returns:')
-            # print(type(returnval))
             if(isinstance(returnval, list)):
                 for val in returnval:
                     print(val)
@@ -279,8 +360,7 @@ class Browser:
                 else:
                     postuser = postuser[0][0]
                 self.printpost(returnval[0], postuser, 0)
-                comments = (self.connector.operate(
-                    self.viewcomments, (given_id,)))
+                comments = self.connector.operate(self.viewcomments, (given_id,))
                 self.printcomments(comments, 2)
                 for post in subposts:
                     subpostuser = self.connector.operate(
