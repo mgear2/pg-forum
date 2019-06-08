@@ -329,7 +329,6 @@ class Browser:
 
     def verifyid(self, inputstring, given_id):
         returnval = self.connector.operate(inputstring, given_id)
-        print(returnval)
         if(isinstance(returnval, list)) == False:
             print("Ensure that ID is integer value")
             return False
