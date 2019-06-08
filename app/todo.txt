@@ -16,3 +16,5 @@ Implement ability for admins to:
 
 Implement printing functionality for subcomments
 Implement ability to create subcomments
+
+Badge names should be unique

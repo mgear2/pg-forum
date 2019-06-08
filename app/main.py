@@ -13,4 +13,5 @@ if __name__ == '__main__':
     connector = Connector(database)
     connector.connect()
     browser = Browser(connector)
+    browser.commandrunner()
     connector.disconnect()

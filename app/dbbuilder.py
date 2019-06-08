@@ -182,6 +182,7 @@ class DBbuilder():
             "DROP SCHEMA {0} CASCADE".format(database)
         )
         self.connector.operate(self._destroysql, None)
+        print("Schema CLforum destroyed")
         return
 
     def createadmin(self):
