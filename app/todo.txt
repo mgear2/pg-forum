@@ -6,7 +6,6 @@
     Add comments
 -Refactor browser.py
     split into multiple classes for better readability?
-    split view() into multiple functions
 
 Implement user permissions/roles
     self.user_id is hardcoded; needs to be changed

@@ -4,6 +4,7 @@ from connector import Connector
 import psycopg2
 from datetime import datetime
 import re
+import sys
 
 class DBbuilder():
     def __init__(self, connector, lims):
@@ -21,12 +22,12 @@ class DBbuilder():
         self.badgesroot = ET.parse(
             'app/data/woodworking.stackexchange.com/Badges.xml').getroot()
          # entity table creation statements
-        self.createtags = (
+        self._createtagssql = (
             "CREATE TABLE Tags ("
             "tag_id int PRIMARY KEY,"
             "tag_name varchar({0}))".format(lims[0])
             )
-        self.createusers = (
+        self._createuserssql = (
             "CREATE TABLE Users ("
             "user_id int PRIMARY KEY,"
             "user_name varchar({0}),"
@@ -36,7 +37,7 @@ class DBbuilder():
             "last_active_date timestamp,"
             "about varchar({1}))".format(lims[0], lims[3])
             )
-        self.createposts = (
+        self._createpostssql = (
             "CREATE TABLE Posts ("
             "post_id int PRIMARY KEY,"
             "creation_date timestamp,"
@@ -47,57 +48,65 @@ class DBbuilder():
             "title varchar({0})," 
             "body varchar({1}))".format(lims[0], lims[3])
             )
-        self.createcomments = (
+        self._createcommentssql = (
             "CREATE TABLE Comments ("
             "comment_id int PRIMARY KEY,"
             "score int,"
             "creation_date timestamp,"
             "text varchar({0}))".format(lims[3])
             )
-        self.createbadges = (
+        self._createbadgessql = (
             "CREATE TABLE Badges ("
             "badge_id int PRIMARY KEY,"
             "badge_name varchar({0}))".format(lims[0])
             )
         # relationship table creation statements
-        self.createposted = (
+        self._createpostedsql = (
             "CREATE TABLE Posted ("
             "user_id int REFERENCES Users(user_id),"
             "post_id int REFERENCES Posts(post_id))"
             )
-        self.createtagged = (
+        self._createtaggedsql = (
             "CREATE TABLE Tagged ("
             "tag_id int REFERENCES Tags(tag_id),"
             "post_id int REFERENCES Posts(post_id))"
             )
-        self.createcommented = (
+        self._createcommentedsql = (
             "CREATE TABLE Commented ("
             "user_id int REFERENCES Users(user_id),"
             "comment_id int REFERENCES Comments(comment_id))"
             )
-        self.createthread = (
+        self._createthreadsql = (
             "CREATE TABLE Thread ("
             "post_id int REFERENCES Posts(post_id),"
             "comment_id int REFERENCES Comments(comment_id))"
             )
-        self.createdecorated = (
+        self._createdecoratedsql = (
             "CREATE TABLE Decorated ("
             "user_id int REFERENCES Users(user_id),"
             "badge_id int REFERENCES Badges(badge_id),"
             "date_awarded timestamp)"
             )
-        self.createsubposts = (
+        self._createsubpostssql = (
             "CREATE TABLE Subposts ("
             "parent_id int REFERENCES Posts(post_id),"
             "child_id int REFERENCES Posts(post_id))"
             )
-        self.createsubcomments = (
+        self._createsubcommentssql = (
             "CREATE TABLE Subcomments ("
             "parent_id int REFERENCES Comments(comment_id),"
             "child_id int REFERENCES Comments(comment_id))"
             )
+        # account creation statements
+        self._createadminsql = (
+            "INSERT INTO Users ("
+            "user_id, user_name, location, reputation,"
+            "creation_date, last_active_date,"
+            "about)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            )
         # stored procedure creation statements
-        self.newpostproc = (
+        self._newpostprocsql = (
             "CREATE OR REPLACE PROCEDURE newpost("
                 "post_id int, creation_date timestamp, last_edit_date timestamp,"
                 "favorite_count int, view_count int, score int,"
@@ -115,7 +124,7 @@ class DBbuilder():
             "END;"
             "$$ LANGUAGE plpgsql;"
             )
-        # Limits are used to prevent invalid insertions and/or limit DB size. 
+        # Limits are used to prevent invalid insertions and/or limit table size. 
         self.lims = lims
         self.datefmt = '%Y-%m-%dT%H:%M:%S.%f'
         # Insert queries can fail en masse because of a missing pkey. 
@@ -127,40 +136,61 @@ class DBbuilder():
         self.comment_ids = []
         self.badge_ids = []
 
-    def build(self):
+    def build(self, args, database):
+        self._createschemasql =  (
+            "CREATE SCHEMA {0}".format(database)
+        )
+        self.connector.operate(self._createschemasql, None)
+    
+        if args == []:
+            args.append("all")
+            print("No arguments supplied, building all...")
+
          # Entity tables
-        self.buildtags()
-        self.buildusers()
-        self.buildposts()
-        self.buildcomments()
-        self.buildbadges()
+        if "tags" in args or "all" in args:
+            self.buildtags()
+        if "users" in args or "all" in args:     
+            self.buildusers()
+        if "posts" in args or "all" in args:
+            self.buildposts()
+        if "comments" in args or "all" in args:
+            self.buildcomments()
+        if "badges" in args or "all" in args:
+            self.buildbadges()
 
         # Relationship tables
-        self.buildposted()
-        self.buildtagged()
-        self.buildcommented()
-        self.buildthread()
-        self.builddecorated()
-        self.buildsubposts()
-        self.buildsubcomments()
+        if "posted" in args or "all" in args:
+            self.buildposted()
+        if "tagged" in args or "all" in args:
+            self.buildtagged()
+        if "commented" in args or "all" in args:
+            self.buildcommented()
+        if "thread" in args or "all" in args:
+            self.buildthread()
+        if "decorated" in args or "all" in args:
+            self.builddecorated()
+        if "subposts" in args or "all" in args:
+            self.buildsubposts()
+        if "subcomments" in args or "all" in args:
+            self.buildsubcomments()
         
         self.createadmin()
-        self.connector.operate(dbbuilder.newpostproc, None)
+        self.connector.operate(self._newpostprocsql, (self.connector.schema,))
+
+    def destroy(self, database):
+        self._destroysql = (
+            "DROP SCHEMA {0} CASCADE".format(database)
+        )
+        self.connector.operate(self._destroysql, None)
+        return
 
     def createadmin(self):
-        adminstring = (
-            "INSERT INTO Users ("
-            "user_id, user_name, location, reputation,"
-            "creation_date, last_active_date,"
-            "about)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            )
         admintuples = (
             -999, "Admin", "Wherever", 999999, 
             datetime.now(), datetime.now(), 
             "This is too much responsibility"
             )
-        self.connector.operate(adminstring, admintuples)
+        self.connector.operate(self._createadminsql, admintuples)
 
     def count(self, table):
         countstring = "SELECT COUNT(*) FROM {0}".format(table)
@@ -170,7 +200,7 @@ class DBbuilder():
 
     def buildtags(self):
         print ("Initializing table Tags...this may take a few minutes")
-        self.connector.operate(self.createtags, None)
+        self.connector.operate(self._createtagssql, None)
 
         tagstring = "INSERT INTO Tags (tag_id, tag_name) VALUES "
         tuples = ()
@@ -195,7 +225,7 @@ class DBbuilder():
 
     def buildusers(self):
         print ("Initializing table Users...this may take a few minutes")
-        self.connector.operate(self.createusers, None)
+        self.connector.operate(self._createuserssql, None)
 
         userstring = (
             "INSERT INTO Users ("
@@ -245,7 +275,7 @@ class DBbuilder():
 
     def buildposts(self):
         print ("Initializing table Posts...this may take a few minutes")
-        self.connector.operate(self.createposts, None)
+        self.connector.operate(self._createpostssql, None)
 
         poststring = (
             "INSERT INTO Posts ("
@@ -295,7 +325,7 @@ class DBbuilder():
     # This is an artifact of stackexchange site design. 
     def buildsubposts(self):
         print ("Initializing table Subposts...this may take a few minutes")
-        self.connector.operate(self.createsubposts, None)
+        self.connector.operate(self._createsubpostssql, None)
 
         subpoststring = "INSERT INTO Subposts (parent_id, child_id) VALUES "
         tuples = ()
@@ -321,7 +351,7 @@ class DBbuilder():
 
     def buildposted(self):
         print ("Initializing table Posted...this may take a few minutes")
-        self.connector.operate(self.createposted, None)
+        self.connector.operate(self._createpostedsql, None)
 
         postedstring = "INSERT INTO Posted (user_id, post_id) VALUES "
         tuples = ()
@@ -349,7 +379,7 @@ class DBbuilder():
 
     def buildtagged(self):
         print ("Initializing table Tagged...this may take a few minutes")
-        self.connector.operate(self.createtagged, None)
+        self.connector.operate(self._createtaggedsql, None)
 
         taggedstring = "INSERT INTO Tagged (tag_id, post_id) VALUES "
         gettag = "SELECT tag_id FROM Tags WHERE tag_name = \'{0}\'"
@@ -390,7 +420,7 @@ class DBbuilder():
 
     def buildcomments(self):
         print ("Initializing table Comments...this may take a few minutes")
-        self.connector.operate(self.createcomments, None)
+        self.connector.operate(self._createcommentssql, None)
 
         commentstring = (
             "INSERT INTO Comments ("
@@ -423,12 +453,12 @@ class DBbuilder():
     # This app implements a table to allow for infinitely nested subcomments.
     def buildsubcomments(self):
         print ("Initializing table Subcomments...this may take a few minutes")
-        self.connector.operate(self.createsubcomments, None)
+        self.connector.operate(self._createsubcommentssql, None)
         self.count("Subcomments")
 
     def buildcommented(self):
         print ("Initializing table Commented...this may take a few minutes")
-        self.connector.operate(self.createcommented, None)
+        self.connector.operate(self._createcommentedsql, None)
 
         commentedstring = "INSERT INTO Commented (user_id, comment_id) VALUES  "
         tuples = ()
@@ -453,7 +483,7 @@ class DBbuilder():
 
     def buildthread(self):
         print ("Initializing table Thread...this may take a few minutes")
-        self.connector.operate(self.createthread, None)
+        self.connector.operate(self._createthreadsql, None)
 
         threadstring = "INSERT INTO Thread (post_id, comment_id) VALUES "
         tuples = ()
@@ -478,7 +508,7 @@ class DBbuilder():
 
     def buildbadges(self):
         print ("Initializing table Badges...this may take a few minutes")
-        self.connector.operate(self.createbadges, None)
+        self.connector.operate(self._createbadgessql, None)
 
         badgestring = "INSERT INTO Badges (badge_id, badge_name) VALUES "
         tuples = ()
@@ -501,7 +531,7 @@ class DBbuilder():
 
     def builddecorated(self):
         print ("Initializing table Decorated...this may take a few minutes")
-        self.connector.operate(self.createdecorated, None)
+        self.connector.operate(self._createdecoratedsql, None)
 
         decoratedstring = (
             "INSERT INTO Decorated ("
@@ -532,11 +562,26 @@ class DBbuilder():
         self.count("Decorated")
 
 if __name__ == '__main__':
-    connector = Connector()
+    args = []
+    database = ""
+    i = 0
+
+    for arg in sys.argv:
+        args.append(arg)
+        if arg == "-d":
+            database = sys.argv[i+1]
+
+    if database == "":
+        database = "postgres"
+
+    connector = Connector(database)
     connector.connect()
 
     lims = [100, 200, 400, 5000]
     dbbuilder = DBbuilder(connector, lims)
-    dbbuilder.build()
+    if "destroy" in args:
+        dbbuilder.destroy(connector.schema)
+    else:
+        dbbuilder.build(args[1:], connector.schema)
 
     connector.disconnect()

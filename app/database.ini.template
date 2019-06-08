@@ -2,5 +2,6 @@
 host=
 user=
 database=
+schema=
 password=
 port=

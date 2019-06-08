@@ -3,46 +3,50 @@ import psycopg2
 from configparser import ConfigParser
 
 class Connector: 
-    def __init__(self):
+    def __init__(self, section):
         self.filename = 'app/database.ini'
-        self.section = 'postgres'
-        self.config()
+        self.section = section
+        self.configparse()
 
-    def config(self):
+    def configparse(self):
         # create a ConfigParser instance
         parser = ConfigParser()
         # read config file
         parser.read(self.filename)
         # parse the config file contents into a dictionary variable
-        self.params = {}
+        self.config = {}
         if parser.has_section(self.section):
             # each line of the .ini file can be used as a key-value pair
             pairs = parser.items(self.section)
             for pair in pairs:
-                self.params[pair[0]] = pair[1]
+                if pair[0] == "schema":
+                    self.schema = pair[1]
+                    continue
+                self.config[pair[0]] = pair[1]
         else:
-            raise Exception('Section {0} not found in the {1} file'
+            raise Exception("Section {0} not found in the {1} file"
                             .format(self.section, self.filename))
 
     def connect(self):
         self.connection = None
         # connect to the PostgreSQL server
         try:
-            print('Connecting to the PostgreSQL database...')
-            self.connection = psycopg2.connect(**self.params)
+            print("Connecting to the PostgreSQL database...")
+            self.connection = psycopg2.connect(**self.config)
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         # create a cursor instance to use for the duration of this connection
         self.cursor = self.connection.cursor()
+        self.cursor.execute("SET search_path TO " + self.schema)
         print(self.connection.encoding)
 
     def disconnect(self):
         self.cursor.close()
         if self.connection is not None:
             self.connection.close()
-            print('Database connection closed.')
+            print("Database connection closed.")
         else:
-            print('Connection was already closed!')
+            print("Connection was already closed!")
 
     def operate(self, string, builder):
         try: 

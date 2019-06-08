@@ -165,7 +165,7 @@ class Browser:
             "WHERE comment_id = (%s) "
             "OR post_id = (%s)"
             )
-        self.id = -999
+        self.user_id = -999
         self.offset = 0
         self.limit = 10
         self.divider = (
@@ -280,8 +280,10 @@ class Browser:
     def printpost(self, row, postuser, indent):
         indentstring = ""
         title = row[5]
-        for i in range(0, indent):
+        i = 0
+        while i < indent:
             indentstring += "\t"
+            i += 1
         wrapper = TextWrapper(
             width=79, initial_indent=indentstring, 
             subsequent_indent=indentstring)
@@ -305,16 +307,15 @@ class Browser:
     def printcomments(self, comments, indent):
         for row in comments:
             commentuser = self.connector.operate(self._viewcommentersql, (row[1],))
-            #if (isinstance(commentuser, list) == False 
-            #        or commentuser == []):
-            #    commentuser = "Not found"
             if commentuser == False:
                 commentuser = "Not found"
             else:
                 commentuser = commentuser[0][0]
             indentstring = ""
-            for i in range(0, indent):
+            i = 0
+            while i < indent:
                 indentstring += "\t"
+                i += 1
             wrapper = TextWrapper(
                 width=79, initial_indent=indentstring, 
                 subsequent_indent=indentstring)
@@ -440,7 +441,7 @@ class Browser:
         newid += 1
         newpost = (newid, now, now, 0, 0, 0, newtitle, newbody)
         self.connector.operate(self._newpostsql, newpost)
-        self.connector.operate(self._newpostedsql, (self.id, newid))
+        self.connector.operate(self._newpostedsql, (self.user_id, newid))
         string = "INSERT INTO Tagged (tag_id, post_id) VALUES "
         tuples = ()
         i = 0
@@ -472,7 +473,7 @@ class Browser:
         newid += 1
         newpost = (newid, now, now, 0, 0, 0, newtitle, newbody)
         self.connector.operate(self._newpostsql, newpost)
-        self.connector.operate(self._newpostedsql, (self.id, newid))
+        self.connector.operate(self._newpostedsql, (self.user_id, newid))
         self.connector.operate(self._newsubpostsql, (parent, newid))
         print("Created new post with ID {0} on Parent {1}".format(newid, parent))
 
@@ -492,7 +493,7 @@ class Browser:
         newid += 1
         newcomment = (newid, 0, now, newbody)
         self.connector.operate(self._newcommentsql, newcomment)
-        self.connector.operate(self._newcommentedsql, (self.id, newid))
+        self.connector.operate(self._newcommentedsql, (self.user_id, newid))
         self.connector.operate(self._newthreadsql, (parent, newid))
         print("Created new Comment with ID {0} on Parent {1}".format(newid, parent))
 
@@ -516,7 +517,7 @@ class Browser:
         if parent != []:
             parent = parent[0][6]
             self.connector.operate(self._deletefromsubpostsql, (postid, parent))
-        self.connector.operate(self._deletefrompostedsql, (self.id, postid))
+        self.connector.operate(self._deletefrompostedsql, (self.user_id, postid))
         self.connector.operate(self._deletefromtaggedsql, (postid,))
         self.connector.operate(self._deletefrompostssql, (postid,))
         print("Deleted post with ID {0}".format(postid))
@@ -524,6 +525,6 @@ class Browser:
     def deletecomment(self, verifylist):
         commentid = verifylist[2]
         self.connector.operate(self._deletefromcommentedsql, (commentid,))
-        self.connector.operate(self._deletefromthreadsql, (commentid, self.id))
+        self.connector.operate(self._deletefromthreadsql, (commentid, self.user_id))
         self.connector.operate(self._deletefromcommentssql, (commentid,))
         print("Deleted comment with ID {0}".format(commentid))

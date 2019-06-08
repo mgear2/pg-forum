@@ -5,11 +5,12 @@ from connector import Connector
 from browser import Browser
 
 if __name__ == '__main__':
-    # create a Connector instance and connect to the database
-    connector = Connector()
+    if len(sys.argv) > 1:
+        database = sys.argv[1]
+    else:
+        database = "postgres"
+
+    connector = Connector(database)
     connector.connect()
-    # take user input and send it to the database
     browser = Browser(connector)
-    browser.commandrunner()
-    # disconnect from the database
     connector.disconnect()
