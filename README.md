@@ -142,6 +142,8 @@ This  config  file  holds  all  credentials  needed  to  connect  to  a  Postgre
 
 ### Diagram
 
+![erdiagram](er-diagram.png)
+
 ### Schema
 
 Users(__user_id__, user_name, location, reputation, creation_date, last_active_date, about)  
