@@ -1,4 +1,4 @@
-![pgforumtitle](pg-forum_title.png)
+![pgforumtitle](/img/pg-forum_title.png)
 
 # pg-forum
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -78,38 +78,62 @@ Used at any time to exit the program and disconnect from the database.
 `sqlrunner`  
 Entering one of these aliases activates a mode for entering sql queries directly from the command line. The user can type back to return to the application command line.
 
+![sqlrunner](/img/sqlrunner.JPG)
+
 `explore users`  
 Returns lists of users in groups of ten. The user can press `<ENTER>` to see more results, or type `back` to return to the application command line.
-  
+
+![exploreusers](/img/exploreusers.JPG)
+
 `explore posts`  
 Returns lists of posts in groups of ten. The user can press `<ENTER>` to see more results, or type `back` to return to the application command line.
-  
+
+![exploreposts](/img/exploreposts.JPG)
+
 `explore tags`  
 Returns lists of tags in groups of ten. The user can press `<ENTER>` to see more results, or type `back` to return to the application command line.
+
+![exploretags](/img/exploretags.JPG)
 
 `view user <user_id>`  
 Allows the user a detailed view of the profile for the selected user_id, including user badges.
 
+![viewuser](/img/viewuser.JPG)
+
 `view post <post_id>`  
 Allows the user a detailed view of the post, subposts, and comments for the selected post_id.
+
+![viewpost](/img/viewpost.JPG)
 
 `view tag <tag_id>`  
 Returns a list of the posts affiliated with a selected tag_id.
 
+![viewtag](/img/viewtag.JPG)
+
 `new post`  
 Allows the user to create a new post. This demonstrates a stored procedure. __Known bug__: if the user enters a tag name not in the database, the application will throw an error and exit.
+
+![newpost](/img/newpost.JPG)
 
 `new post <post_id>`
 Allows the user to create a subpost on post_id. Uses many of the same queries as new post, but also inserts the post into Subposts.
 
+![newsubpost](/img/newsubpost.JPG)
+
 `new comment <post_id>`  
 Allows the user to create a comment on post_id.
+
+![newcomment](/img/newcomment.JPG)
 
 `delete post <post_id>`  
 Allows the user to delete a post with post_id.
 
+![deletepost](/img/deletepost.JPG)
+
 `delete comment <comment_id>`  
 Allows the user to delete a comment with comment_id.
+
+![deletecomments](/img/deletecomments.JPG)
 
 ## Data Source <a name="source"></a>
 
@@ -142,7 +166,7 @@ This  config  file  holds  all  credentials  needed  to  connect  to  a  Postgre
 
 ### Diagram
 
-![erdiagram](er-diagram.png)
+![erdiagram](img/er-diagram.png)
 
 ### Schema
 
