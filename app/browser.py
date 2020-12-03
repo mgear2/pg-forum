@@ -4,6 +4,7 @@ import sys
 import datetime
 import psycopg2
 
+
 class Browser:
     def __init__(self, connector):
         self.connector = connector
@@ -11,55 +12,53 @@ class Browser:
             "SELECT user_id, user_name, location "
             "FROM Users "
             "OFFSET (%s) LIMIT (%s)"
-            )
+        )
         self._explorepostssql = (
             "SELECT post_id, title "
             "FROM Posts "
             "WHERE title != 'None' "
             "OFFSET (%s) LIMIT (%s)"
-            )
+        )
         self._exploretagssql = (
-            "SELECT tag_id, tag_name "
-            "FROM Tags "
-            "OFFSET (%s) LIMIT (%s)"
-            )
+            "SELECT tag_id, tag_name " "FROM Tags " "OFFSET (%s) LIMIT (%s)"
+        )
         self._viewusersql = (
             "SELECT users.user_id, user_name, location,"
             "reputation, creation_date, last_active_date "
             "FROM Users "
             "WHERE users.user_id = (%s)"
-            )
+        )
         self._userbadgessql = (
             "SELECT badge_name "
             "FROM Users, Decorated, Badges "
             "WHERE users.user_id = (%s) "
             "AND decorated.user_id=(%s) "
             "AND badges.badge_id=decorated.badge_id"
-            )
+        )
         self._viewpostsql = (
             "SELECT creation_date, last_edit_date,"
             "favorite_count, view_count, score, title, post_id, body "
             "FROM posts "
             "WHERE post_id = (%s)"
-            )
+        )
         self._viewpostersql = (
             "SELECT users.user_name "
             "FROM users, posted "
             "WHERE posted.post_id = (%s) "
             "AND users.user_id=posted.user_id"
-            )
+        )
         self._viewsubpostssql = (
             "SELECT creation_date, last_edit_date, "
             "favorite_count, view_count, score, title, posts.post_id, body "
             "FROM posts, subposts "
             "WHERE subposts.parent_id = (%s) "
             "AND Posts.post_id = Subposts.child_id"
-            )
+        )
         self._findparentsql = (
             "SELECT subposts.parent_id "
             "FROM Subposts "
             "WHERE subposts.child_id = (%s)"
-            )
+        )
         self._viewcommentssql = (
             "SELECT thread.post_id, comments.comment_id,"
             "comments.score, comments.creation_date, comments.text "
@@ -67,111 +66,73 @@ class Browser:
             "WHERE posts.post_id = (%s) "
             "AND posts.post_id = thread.post_id "
             "AND thread.comment_id = comments.comment_id"
-            )
+        )
         self._viewcommentersql = (
             "SELECT users.user_name "
             "FROM Commented, Users "
             "WHERE commented.comment_id = (%s) "
             "AND commented.user_id = users.user_id"
-            )
+        )
         self._confirmtagsql = (
             "SELECT tags.tag_name, posts.post_id, posts.title "
             "FROM Tags, Posts, Tagged "
             "WHERE tags.tag_id = (%s) "
             "AND tags.tag_id = tagged.tag_id "
             "AND tagged.post_id = posts.post_id LIMIT 5"
-            )
+        )
         self._viewtagpostssql = (
             "SELECT tags.tag_name, posts.post_id, posts.title "
             "FROM Tags, Posts, Tagged "
             "WHERE tags.tag_id = (%s) "
             "AND tags.tag_id = tagged.tag_id "
             "AND tagged.post_id = posts.post_id OFFSET (%s) LIMIT (%s)"
-            )
-        self._newpostidsql = (
-            "SELECT max(post_id) "
-            "FROM Posts"
-            )
+        )
+        self._newpostidsql = "SELECT max(post_id) " "FROM Posts"
         self._newpostedsql = (
-            "INSERT INTO Posted "
-            "(user_id, post_id) "
-            "VALUES (%s, %s)"
-            )
-        self._newpostsql = (
-            "CALL newpost(%s, %s, %s, %s, %s, %s, %s, %s)"
-            )
-        self._posttagsql = (
-            "INSERT INTO Tagged "
-            "(tag_id, post_id) "
-            "VALUES (%s, %s)"
-            )
+            "INSERT INTO Posted " "(user_id, post_id) " "VALUES (%s, %s)"
+        )
+        self._newpostsql = "CALL newpost(%s, %s, %s, %s, %s, %s, %s, %s)"
+        self._posttagsql = "INSERT INTO Tagged " "(tag_id, post_id) " "VALUES (%s, %s)"
         self._findtagidsql = (
-            "SELECT tag_id, tag_name "
-            "FROM Tags "
-            "WHERE tag_name = (%s)"
-            )
+            "SELECT tag_id, tag_name " "FROM Tags " "WHERE tag_name = (%s)"
+        )
         self._newsubpostsql = (
-            "INSERT INTO Subposts "
-            "(parent_id, child_id) "
-            "VALUES (%s, %s)"
-            )
+            "INSERT INTO Subposts " "(parent_id, child_id) " "VALUES (%s, %s)"
+        )
         self._newcommentsql = (
             "INSERT INTO Comments "
             "(comment_id, score, creation_date, text) "
             "VALUES (%s, %s, %s, %s)"
-            )
-        self._newcommentidsql = (
-            "SELECT max(comment_id) "
-            "FROM Comments"
-            )
+        )
+        self._newcommentidsql = "SELECT max(comment_id) " "FROM Comments"
         self._newcommentedsql = (
-            "INSERT INTO Commented "
-            "(user_id, comment_id) "
-            "VALUES (%s, %s)"
-            )
+            "INSERT INTO Commented " "(user_id, comment_id) " "VALUES (%s, %s)"
+        )
         self._newthreadsql = (
-            "INSERT INTO Thread "
-            "(post_id, comment_id) "
-            "VALUES (%s, %s)"
-            )
-        self._deletefromtaggedsql = (
-            "DELETE FROM Tagged "
-            "WHERE Tagged.post_id = (%s)"
-            )
-        self._deletefrompostssql = (
-            "DELETE FROM Posts "
-            "WHERE Posts.post_id=(%s)"
-            )
+            "INSERT INTO Thread " "(post_id, comment_id) " "VALUES (%s, %s)"
+        )
+        self._deletefromtaggedsql = "DELETE FROM Tagged " "WHERE Tagged.post_id = (%s)"
+        self._deletefrompostssql = "DELETE FROM Posts " "WHERE Posts.post_id=(%s)"
         self._deletefromsubpostsql = (
-            "DELETE FROM Subposts "
-            "WHERE parent_id = (%s) "
-            "OR child_id = (%s)"
-            )
+            "DELETE FROM Subposts " "WHERE parent_id = (%s) " "OR child_id = (%s)"
+        )
         self._deletefrompostedsql = (
-            "DELETE FROM Posted "
-            "WHERE user_id = (%s) "
-            "OR post_id = (%s)"
-            )
+            "DELETE FROM Posted " "WHERE user_id = (%s) " "OR post_id = (%s)"
+        )
         self._deletefromcommentedsql = (
-            "DELETE FROM Commented "
-            "WHERE comment_id = (%s)"
-            )
-        self._deletefromcommentssql = (
-            "DELETE FROM Comments "
-            "WHERE comment_id = (%s)"
-            )
+            "DELETE FROM Commented " "WHERE comment_id = (%s)"
+        )
+        self._deletefromcommentssql = "DELETE FROM Comments " "WHERE comment_id = (%s)"
         self._deletefromthreadsql = (
-            "DELETE FROM Thread "
-            "WHERE comment_id = (%s) "
-            "OR post_id = (%s)"
-            )
+            "DELETE FROM Thread " "WHERE comment_id = (%s) " "OR post_id = (%s)"
+        )
         self.user_id = -999
         self.offset = 0
         self.limit = 10
         self.divider = (
             "---------------------------------------"
             "---------------------------------------"
-            )
+        )
 
     def exit(self):
         self.connector.disconnect()
@@ -180,14 +141,13 @@ class Browser:
     def commandrunner(self):
         while True:
             userstring = input("Enter Command: ")
-            verify = userstring.split(' ')
+            verify = userstring.split(" ")
 
             if userstring == "":
                 continue
             elif userstring == "exit":
                 self.exit()
-            elif (userstring == "query tool" 
-                    or userstring == "sqlrunner"):
+            elif userstring == "query tool" or userstring == "sqlrunner":
                 self.sqlrunner()
                 continue
             elif verify[0] == "explore":
@@ -228,13 +188,13 @@ class Browser:
                 print("Exiting Query Tool")
                 return
             returnval = self.connector.operate(userstring, None)
-            if(isinstance(returnval, list)):
+            if isinstance(returnval, list):
                 for val in returnval:
                     print(val)
 
     def explore(self, context):
         print("Exploring {0}".format(context))
-        print("<ENTER> for more results, \'back\' to return to command line")
+        print("<ENTER> for more results, 'back' to return to command line")
         self.offset = 0
 
         if context == "users":
@@ -252,14 +212,15 @@ class Browser:
         while True:
             if userstring == "":
                 returnval = self.connector.operate(
-                    inputstring, (self.offset, self.limit))
-                if(isinstance(returnval, list)):
+                    inputstring, (self.offset, self.limit)
+                )
+                if isinstance(returnval, list):
                     for val in returnval:
                         print(val)
                     if returnval == [] or len(returnval) < 10:
                         print("End of results")
                         break
-                userstring = input("<ENTER>/\'back\': ")
+                userstring = input("<ENTER>/'back': ")
                 self.offset += 10
                 continue
             if userstring == "exit":
@@ -285,8 +246,8 @@ class Browser:
             indentstring += "\t"
             i += 1
         wrapper = TextWrapper(
-            width=79, initial_indent=indentstring, 
-            subsequent_indent=indentstring)
+            width=79, initial_indent=indentstring, subsequent_indent=indentstring
+        )
         if row[5] == None and indent == 0:
             parent = self.connector.operate(self._findparentsql, (row[6],))
             if parent != []:
@@ -297,11 +258,15 @@ class Browser:
         body = wrapper.wrap(row[7])
         for line in body:
             print(line)
-        print(("{0}By:\t{1}\tID: {5}\t\tScore: {2}\t"
-            "Views: {3}\tFavorites: {4}".format(
-            indentstring, postuser, row[4], row[3], row[2], row[6])))
-        print("{0}Posted: {1}\tLast Edited: {2}".format(
-            indentstring, row[0], row[1]))
+        print(
+            (
+                "{0}By:\t{1}\tID: {5}\t\tScore: {2}\t"
+                "Views: {3}\tFavorites: {4}".format(
+                    indentstring, postuser, row[4], row[3], row[2], row[6]
+                )
+            )
+        )
+        print("{0}Posted: {1}\tLast Edited: {2}".format(indentstring, row[0], row[1]))
         print(self.divider)
 
     def printcomments(self, comments, indent):
@@ -317,19 +282,22 @@ class Browser:
                 indentstring += "\t"
                 i += 1
             wrapper = TextWrapper(
-                width=79, initial_indent=indentstring, 
-                subsequent_indent=indentstring)
+                width=79, initial_indent=indentstring, subsequent_indent=indentstring
+            )
             body = wrapper.wrap(row[4])
             for line in body:
                 print(line)
-            print("{0}By:\t{1}\tID: {2}\t\tScore: {3}".format(
-                indentstring, commentuser, row[1], row[2]))
+            print(
+                "{0}By:\t{1}\tID: {2}\t\tScore: {3}".format(
+                    indentstring, commentuser, row[1], row[2]
+                )
+            )
             print("{0}Posted: {1}".format(indentstring, row[3]))
             print(self.divider)
 
     def verifyid(self, inputstring, given_id):
         returnval = self.connector.operate(inputstring, given_id)
-        if(isinstance(returnval, list)) == False:
+        if (isinstance(returnval, list)) == False:
             print("Ensure that ID is integer value")
             return False
         elif returnval == []:
@@ -359,8 +327,7 @@ class Browser:
         return
 
     def viewuser(self, given_id, returnval):
-        userbadges = self.connector.operate(
-            self._userbadgessql, (given_id, given_id))
+        userbadges = self.connector.operate(self._userbadgessql, (given_id, given_id))
         badges = []
         for badge in userbadges:
             badges += badge
@@ -368,39 +335,34 @@ class Browser:
         return
 
     def viewpost(self, given_id, returnval):
-        subposts = self.connector.operate(
-            self._viewsubpostssql, (given_id,))
-        postuser = self.connector.operate(
-            self._viewpostersql, (returnval[0][6],))
+        subposts = self.connector.operate(self._viewsubpostssql, (given_id,))
+        postuser = self.connector.operate(self._viewpostersql, (returnval[0][6],))
 
         if postuser == []:
-            postuser = "User not found with Id {0}".format(
-                given_id)
+            postuser = "User not found with Id {0}".format(given_id)
         else:
             postuser = postuser[0][0]
 
         self.printpost(returnval[0], postuser, 0)
-        comments = self.connector.operate(
-            self._viewcommentssql, (given_id,))
+        comments = self.connector.operate(self._viewcommentssql, (given_id,))
         self.printcomments(comments, 2)
 
         for post in subposts:
-            subpostuser = self.connector.operate(
-                self._viewpostersql, (post[6],))
+            subpostuser = self.connector.operate(self._viewpostersql, (post[6],))
             if subpostuser == []:
                 subpostuser = "User not found"
             else:
                 subpostuser = subpostuser[0][0]
             self.printpost(post, subpostuser, 1)
-            comments = self.connector.operate(
-                self._viewcommentssql, (post[6],))
+            comments = self.connector.operate(self._viewcommentssql, (post[6],))
             self.printcomments(comments, 2)
         return
 
     def viewtag(self, given_id):
         returnval = self.connector.operate(
-            self._viewtagpostssql, (given_id, self.offset, self.limit))
-        if(isinstance(returnval, list)):
+            self._viewtagpostssql, (given_id, self.offset, self.limit)
+        )
+        if isinstance(returnval, list):
             for val in returnval:
                 print(val)
             if returnval == [] or len(returnval) < 10:
@@ -434,7 +396,7 @@ class Browser:
         newbody = ""
         newbody = input("Enter Post Body: ")
         newtags = input("Enter Post Tags as <Tag1,Tag2,Tag3...>: ")
-        newtags = newtags.split(',')
+        newtags = newtags.split(",")
         newid = self.connector.operate(self._newpostidsql, None)
         newid = newid[0][0]
         newid += 1
@@ -448,7 +410,7 @@ class Browser:
             i += 1
             dbtag = self.connector.operate(self._findtagidsql, (tag,))
             string += "(%s, %s)"
-            tuples += dbtag[0][0],newid
+            tuples += dbtag[0][0], newid
             if i < len(newtags):
                 string += ","
         self.connector.operate(string, tuples)
@@ -498,8 +460,8 @@ class Browser:
 
     def delete(self, verifylist):
         if len(verifylist) < 3:
-                print("Please define an ID to delete")
-                return
+            print("Please define an ID to delete")
+            return
         if verifylist[1] == "post":
             self.deletepost(verifylist)
             return
