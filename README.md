@@ -74,8 +74,6 @@ main.py takes a single optional command-line argument. If supplied, this argumen
 `exit`  
 Used at any time to exit the program and disconnect from the database.
 
-![exit](/img/exit.JPG)
-
 `query tool`  
 `sqlrunner`  
 Entering one of these aliases activates a mode for entering sql queries directly from the command line. The user can type back to return to the application command line.
