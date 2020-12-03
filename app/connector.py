@@ -2,9 +2,10 @@
 import psycopg2
 from configparser import ConfigParser
 
-class Connector: 
+
+class Connector:
     def __init__(self, section):
-        self.filename = 'app/database.ini'
+        self.filename = "app/database.ini"
         self.section = section
         self.configparse()
 
@@ -24,8 +25,11 @@ class Connector:
                     continue
                 self.config[pair[0]] = pair[1]
         else:
-            raise Exception("Section {0} not found in the {1} file"
-                            .format(self.section, self.filename))
+            raise Exception(
+                "Section {0} not found in the {1} file".format(
+                    self.section, self.filename
+                )
+            )
 
     def connect(self):
         self.connection = None
@@ -49,7 +53,7 @@ class Connector:
             print("Connection was already closed!")
 
     def operate(self, string, builder):
-        try: 
+        try:
             # Some commands have a builder variable (tuples for format string)
             if builder == None:
                 self.cursor.execute(string)
