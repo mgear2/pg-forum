@@ -1,5 +1,8 @@
+![pgforumtitle](pg-forum_title.png)
+
 # pg-forum
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # Usage
 
@@ -32,4 +35,8 @@ Implement ability to create subcomments
   
 This program is licensed under the "MIT License".  Please
 see the file `LICENSE` in the source distribution of this
-software for license terms.
+software for license terms.  
+
+## Misc
+
+Title Art generated at https://fontmeme.com/pixel-fonts/
