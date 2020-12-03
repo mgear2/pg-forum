@@ -1,4 +1,4 @@
-![pgforumtitle](pg-forum_title.png)
+![pgforumtitle](/img/pg-forum_title.png)
 
 # pg-forum
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -142,7 +142,7 @@ This  config  file  holds  all  credentials  needed  to  connect  to  a  Postgre
 
 ### Diagram
 
-![erdiagram](er-diagram.png)
+![erdiagram](img/er-diagram.png)
 
 ### Schema
 
