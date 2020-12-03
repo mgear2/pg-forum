@@ -133,7 +133,7 @@ Allows the user to delete a post with post_id.
 `delete comment <comment_id>`  
 Allows the user to delete a comment with comment_id.
 
-![deletecomments](/img/deletecomments.jpg)
+![deletecomments](/img/deletecomments.JPG)
 
 ## Data Source <a name="source"></a>
 
