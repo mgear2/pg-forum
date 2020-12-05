@@ -46,11 +46,9 @@ schema=CLforum
 Depending on platform and environment settings, you may run python3 on your system with one or more of the following keywords:
 `python` or `python3`
 
-From the root directory, type `pipenv run [python_keyword] app\dbbuilder.py` to build out the database.  
+From the root directory, type `pipenv run [python_keyword] dbbuilder.py` to build out the database.  
 
-From the root directory, type `pipenv run [python_keyword] app\main.py` to run the app.  
-
-Note: Running either `main.py` or `dbbuilder.py` from within the `app` subdirectory will raise an error.  
+From the root directory, type `pipenv run [python_keyword] main.py` to run the app.  
 
 ## Usage <a name="usage"></a>
 

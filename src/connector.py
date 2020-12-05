@@ -1,11 +1,12 @@
 # pylint: disable=import-error
 import psycopg2
 from configparser import ConfigParser
-
+from pathlib import Path
 
 class Connector:
     def __init__(self, section):
-        self.filename = "app/database.ini"
+        self.datafolder = Path("src/")
+        self.filename = Path("database.ini")
         self.section = section
         self.configparse()
 
@@ -13,7 +14,7 @@ class Connector:
         # create a ConfigParser instance
         parser = ConfigParser()
         # read config file
-        parser.read(self.filename)
+        parser.read(self.datafolder / self.filename)
         # parse the config file contents into a dictionary variable
         self.config = {}
         if parser.has_section(self.section):
