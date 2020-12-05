@@ -50,8 +50,6 @@ From the root directory, type `pipenv run [python_keyword] dbbuilder.py` to buil
 
 From the root directory, type `pipenv run [python_keyword] main.py` to run the app.  
 
-Note: Running either `main.py` or `dbbuilder.py` from within the `app` subdirectory will raise an error.  
-
 ## Usage <a name="usage"></a>
 
 ### dbbuilder.py
