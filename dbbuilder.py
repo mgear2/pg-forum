@@ -1,6 +1,6 @@
 # pylint: disable=import-error
 import xml.etree.ElementTree as ET
-from connector import Connector
+from src.connector import Connector
 import psycopg2
 from datetime import datetime
 import re
@@ -13,19 +13,19 @@ class DBbuilder:
         self.connector = connector
         # define roots for each xml file
         self.tagsroot = ET.parse(
-            "app/data/woodworking.stackexchange.com/Tags.xml"
+            "src/data/woodworking.stackexchange.com/Tags.xml"
         ).getroot()
         self.usersroot = ET.parse(
-            "app/data/woodworking.stackexchange.com/Users.xml"
+            "src/data/woodworking.stackexchange.com/Users.xml"
         ).getroot()
         self.postsroot = ET.parse(
-            "app/data/woodworking.stackexchange.com/Posts.xml"
+            "src/data/woodworking.stackexchange.com/Posts.xml"
         ).getroot()
         self.commentsroot = ET.parse(
-            "app/data/woodworking.stackexchange.com/Comments.xml"
+            "src/data/woodworking.stackexchange.com/Comments.xml"
         ).getroot()
         self.badgesroot = ET.parse(
-            "app/data/woodworking.stackexchange.com/Badges.xml"
+            "src/data/woodworking.stackexchange.com/Badges.xml"
         ).getroot()
         # entity table creation statements
         self._createtagssql = (
